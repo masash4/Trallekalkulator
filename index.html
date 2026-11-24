@@ -586,7 +586,7 @@
 
     function fmtMeters(cm) {
       const m = Math.max(0, cm) / 100;
-      return `\${m.toFixed(2).replace('.', ',')} m`;
+      return `${m.toFixed(2).replace('.', ',')} m`;
     }
 
     function calcKarBreakdown(totalKar, requestedSingle) {
@@ -1086,7 +1086,184 @@
           fill: '#0369a1',
           'font-size': 12,
           'font-weight': 700,
-        }, `FRYS (${fmtMeters(calc.frysZoneCm)})`)); }  // Skillevegg i knallrosa/magenta (#db2777) if (calc.hasFrys) { const divX = xOf(dividerStartCm); const divW = Math.max(6, calc.dividerCm * scaleX); svg.appendChild(el('rect', { x: Math.min(marginLeft + drawW - divW, Math.max(marginLeft, divX)), y: marginTop - 3, width: divW, height: drawH + 6, rx: 3, fill: '#db2777', }));  const divCenterX = Math.min(marginLeft + drawW - 24, Math.max(marginLeft + 24, divX + divW / 2)); svg.appendChild(el('text', { x: divCenterX, y: marginTop - 27, 'text-anchor': 'middle', fill: '#db2777', 'font-size': 10, 'font-weight': 800, }, 'SKILLEVEGG')); }  const drawPackedZone = (pack, startCm, karInfo, skipsCount) => { const bigQueue = buildBigItemQueue(karInfo, skipsCount); let bigIdx = 0; let cursorCm = startCm;  for (const row of pack.rows) { for (const slot of row.slots) { const rx = xOf(cursorCm + slot.dx) + 2; const ry = yOf(slot.dy) + 2; const rw = Math.max(4, slot.lx * scaleX - 4); const rh = Math.max(4, slot.wy * scaleY - 4);  const isOut = (cursorCm + slot.dx + slot.lx) > state.trailerLengthCm + 0.5;  let fill = '#4f46e5'; let stroke = '#312e81'; let label = 'EUR'; let subLabel = ''; let isStacked = false;  if (slot.kind === 'big') { const item = bigQueue[bigIdx] \vert{}\vert{} { type: 'skips' }; bigIdx++; if (item.type === 'karSingle') { fill = '#14b8a6'; stroke = '#115e59'; label = 'KAR'; subLabel = '×1'; } else if (item.type === 'karStacked') { fill = '#059669'; stroke = '#064e3b'; label = 'KAR'; subLabel = '×2'; isStacked = true; } else { fill = '#f59e0b'; stroke = '#b45309'; label = 'SKIPS'; } }  if (isOut) { fill = '#ef4444'; stroke = '#991b1b'; }  svg.appendChild(el('rect', { x: rx, y: ry, width: rw, height: rh, rx: 5, fill, stroke, 'stroke-width': isStacked ? 2.4 : 1.5, }));  if (isStacked && rw > 16 && rh > 16) { svg.appendChild(el('rect', { x: rx + 3.5, y: ry + 3.5, width: rw - 7, height: rh - 7, rx: 3, fill: 'none', stroke: '#a7f3d0', 'stroke-width': 1.3, 'stroke-opacity': 0.85, })); }  if (rw >= 26 && rh >= 22) { const cx = rx + rw / 2; const cy = ry + rh / 2; if (subLabel) { svg.appendChild(el('text', { x: cx, y: cy - 3, 'text-anchor': 'middle', fill: '#ffffff', 'font-size': rw >= 44 ? 10.5 : 9, 'font-weight': 800, }, label)); svg.appendChild(el('text', { x: cx, y: cy + 10, 'text-anchor': 'middle', fill: '#ecfdf5', 'font-size': rw >= 44 ? 11 : 9.5, 'font-weight': 800, }, subLabel)); } else { svg.appendChild(el('text', { x: cx, y: cy + 4, 'text-anchor': 'middle', fill: '#ffffff', 'font-size': rw >= 42 ? 10.5 : 9, 'font-weight': 800, }, label)); } } } cursorCm += row.len; } };  if (calc.hasFrys) { drawPackedZone(calc.frysPack, frysStartCm, calc.frysKarInfo, state.frysSkips); } drawPackedZone(calc.kjolPack, kjolStartCm, calc.kjolKarInfo, state.kjolSkips);  if (calc.availKjolCm > 0) { const kjolVisualStart = frysAtBack ? 0 : calc.frysReservedCm; const kjolCenterX = xOf(kjolVisualStart + calc.availKjolCm / 2); svg.appendChild(el('text', { x: Math.max(marginLeft + 50, Math.min(marginLeft + drawW - 50, kjolCenterX)), y: marginTop - 12, 'text-anchor': 'middle', fill: '#334155', 'font-size': 12, 'font-weight': 700, }, `KJØL (${fmtMeters(calc.kjolPack.lengthCm)} brukt av ${fmtMeters(calc.availKjolCm)})`)); }  if (!calc.isOverload && emptyLenCm >= 25) { const ex = xOf(emptyStartCm); const ew = emptyLenCm * scaleX; const centerX = ex + ew / 2; const centerY = marginTop + drawH / 2;  if (ew >= 115) { const badgeW = Math.min(ew - 16, 174); svg.appendChild(el('rect', { x: centerX - badgeW / 2, y: centerY - 15, width: badgeW, height: 30, rx: 15, fill: '#ffffff', stroke: '#cbd5e1', 'stroke-width': 1.2, })); svg.appendChild(el('text', { x: centerX, y: centerY + 4, 'text-anchor': 'middle', fill: '#475569', 'font-size': 11.5, 'font-weight': 700, }, `Tomt · ${fmtMeters(emptyLenCm)} ledig`));
+        }, `FRYS (${fmtMeters(calc.frysZoneCm)})`));
+      }
+
+      // Skillevegg i knallrosa/magenta (#db2777)
+      if (calc.hasFrys) {
+        const divX = xOf(dividerStartCm);
+        const divW = Math.max(6, calc.dividerCm * scaleX);
+        svg.appendChild(el('rect', {
+          x: Math.min(marginLeft + drawW - divW, Math.max(marginLeft, divX)),
+          y: marginTop - 3,
+          width: divW,
+          height: drawH + 6,
+          rx: 3,
+          fill: '#db2777',
+        }));
+
+        const divCenterX = Math.min(marginLeft + drawW - 24, Math.max(marginLeft + 24, divX + divW / 2));
+        svg.appendChild(el('text', {
+          x: divCenterX,
+          y: marginTop - 27,
+          'text-anchor': 'middle',
+          fill: '#db2777',
+          'font-size': 10,
+          'font-weight': 800,
+        }, 'SKILLEVEGG'));
+      }
+
+      const drawPackedZone = (pack, startCm, karInfo, skipsCount) => {
+        const bigQueue = buildBigItemQueue(karInfo, skipsCount);
+        let bigIdx = 0;
+        let cursorCm = startCm;
+
+        for (const row of pack.rows) {
+          for (const slot of row.slots) {
+            const rx = xOf(cursorCm + slot.dx) + 2;
+            const ry = yOf(slot.dy) + 2;
+            const rw = Math.max(4, slot.lx * scaleX - 4);
+            const rh = Math.max(4, slot.wy * scaleY - 4);
+
+            const isOut = (cursorCm + slot.dx + slot.lx) > state.trailerLengthCm + 0.5;
+
+            let fill = '#4f46e5';
+            let stroke = '#312e81';
+            let label = 'EUR';
+            let subLabel = '';
+            let isStacked = false;
+
+            if (slot.kind === 'big') {
+              const item = bigQueue[bigIdx] || { type: 'skips' };
+              bigIdx++;
+              if (item.type === 'karSingle') {
+                fill = '#14b8a6';
+                stroke = '#115e59';
+                label = 'KAR';
+                subLabel = '×1';
+              } else if (item.type === 'karStacked') {
+                fill = '#059669';
+                stroke = '#064e3b';
+                label = 'KAR';
+                subLabel = '×2';
+                isStacked = true;
+              } else {
+                fill = '#f59e0b';
+                stroke = '#b45309';
+                label = 'SKIPS';
+              }
+            }
+
+            if (isOut) {
+              fill = '#ef4444';
+              stroke = '#991b1b';
+            }
+
+            svg.appendChild(el('rect', {
+              x: rx,
+              y: ry,
+              width: rw,
+              height: rh,
+              rx: 5,
+              fill,
+              stroke,
+              'stroke-width': isStacked ? 2.4 : 1.5,
+            }));
+
+            if (isStacked && rw > 16 && rh > 16) {
+              svg.appendChild(el('rect', {
+                x: rx + 3.5,
+                y: ry + 3.5,
+                width: rw - 7,
+                height: rh - 7,
+                rx: 3,
+                fill: 'none',
+                stroke: '#a7f3d0',
+                'stroke-width': 1.3,
+                'stroke-opacity': 0.85,
+              }));
+            }
+
+            if (rw >= 26 && rh >= 22) {
+              const cx = rx + rw / 2;
+              const cy = ry + rh / 2;
+              if (subLabel) {
+                svg.appendChild(el('text', {
+                  x: cx,
+                  y: cy - 3,
+                  'text-anchor': 'middle',
+                  fill: '#ffffff',
+                  'font-size': rw >= 44 ? 10.5 : 9,
+                  'font-weight': 800,
+                }, label));
+                svg.appendChild(el('text', {
+                  x: cx,
+                  y: cy + 10,
+                  'text-anchor': 'middle',
+                  fill: '#ecfdf5',
+                  'font-size': rw >= 44 ? 11 : 9.5,
+                  'font-weight': 800,
+                }, subLabel));
+              } else {
+                svg.appendChild(el('text', {
+                  x: cx,
+                  y: cy + 4,
+                  'text-anchor': 'middle',
+                  fill: '#ffffff',
+                  'font-size': rw >= 42 ? 10.5 : 9,
+                  'font-weight': 800,
+                }, label));
+              }
+            }
+          }
+          cursorCm += row.len;
+        }
+      };
+
+      if (calc.hasFrys) {
+        drawPackedZone(calc.frysPack, frysStartCm, calc.frysKarInfo, state.frysSkips);
+      }
+      drawPackedZone(calc.kjolPack, kjolStartCm, calc.kjolKarInfo, state.kjolSkips);
+
+      if (calc.availKjolCm > 0) {
+        const kjolVisualStart = frysAtBack ? 0 : calc.frysReservedCm;
+        const kjolCenterX = xOf(kjolVisualStart + calc.availKjolCm / 2);
+        svg.appendChild(el('text', {
+          x: Math.max(marginLeft + 50, Math.min(marginLeft + drawW - 50, kjolCenterX)),
+          y: marginTop - 12,
+          'text-anchor': 'middle',
+          fill: '#334155',
+          'font-size': 12,
+          'font-weight': 700,
+        }, `KJØL (${fmtMeters(calc.kjolPack.lengthCm)} brukt av ${fmtMeters(calc.availKjolCm)})`));
+      }
+
+      if (!calc.isOverload && emptyLenCm >= 25) {
+        const ex = xOf(emptyStartCm);
+        const ew = emptyLenCm * scaleX;
+        const centerX = ex + ew / 2;
+        const centerY = marginTop + drawH / 2;
+
+        if (ew >= 115) {
+          const badgeW = Math.min(ew - 16, 174);
+          svg.appendChild(el('rect', {
+            x: centerX - badgeW / 2,
+            y: centerY - 15,
+            width: badgeW,
+            height: 30,
+            rx: 15,
+            fill: '#ffffff',
+            stroke: '#cbd5e1',
+            'stroke-width': 1.2,
+          }));
+          svg.appendChild(el('text', {
+            x: centerX,
+            y: centerY + 4,
+            'text-anchor': 'middle',
+            fill: '#475569',
+            'font-size': 11.5,
+            'font-weight': 700,
+          }, `Tomt · ${fmtMeters(emptyLenCm)} ledig`));
         } else if (ew >= 44) {
           svg.appendChild(el('text', {
             x: centerX,
@@ -1127,7 +1304,36 @@
           fill: '#64748b',
           'font-size': 11,
           'font-weight': 600,
-        }, `${m} m`)); }  const lastTickM = Math.floor(totalMeters / stepM) * stepM; if (state.trailerLengthCm - lastTickM * 100 >= 45) { const endX = marginLeft + drawW; svg.appendChild(el('line', { x1: endX, y1: axisY - 4, x2: endX, y2: axisY + 4, stroke: '#334155', 'stroke-width': 1.5, })); svg.appendChild(el('text', { x: endX, y: axisY + 19, 'text-anchor': 'end', fill: '#334155', 'font-size': 11, 'font-weight': 700, }, fmtMeters(state.trailerLengthCm))); } }  function updateUI() { const calc = calculateAll();  document.getElementById('headerSubtitle').textContent = `${state.trailerLabel} • ${fmtMeters(state.trailerLengthCm)} ×${fmtMeters(state.trailerWidthCm)}`;
+        }, `${m} m`));
+      }
+
+      const lastTickM = Math.floor(totalMeters / stepM) * stepM;
+      if (state.trailerLengthCm - lastTickM * 100 >= 45) {
+        const endX = marginLeft + drawW;
+        svg.appendChild(el('line', {
+          x1: endX,
+          y1: axisY - 4,
+          x2: endX,
+          y2: axisY + 4,
+          stroke: '#334155',
+          'stroke-width': 1.5,
+        }));
+        svg.appendChild(el('text', {
+          x: endX,
+          y: axisY + 19,
+          'text-anchor': 'end',
+          fill: '#334155',
+          'font-size': 11,
+          'font-weight': 700,
+        }, fmtMeters(state.trailerLengthCm)));
+      }
+    }
+
+    function updateUI() {
+      const calc = calculateAll();
+
+      document.getElementById('headerSubtitle').textContent =
+        `${state.trailerLabel} • ${fmtMeters(state.trailerLengthCm)} × ${fmtMeters(state.trailerWidthCm)}`;
 
       document.getElementById('inputFrysEur').value = state.frysEur;
       document.getElementById('inputFrysSkips').value = state.frysSkips;
@@ -1142,7 +1348,7 @@
         overloadBanner.classList.remove('hidden');
         const overCm = calc.usedTotalCm - state.trailerLengthCm;
         document.getElementById('overloadText').textContent =
-          `Lasset treng ${fmtMeters(calc.usedTotalCm)}, som er${fmtMeters(overCm)} meir enn trallelengda på \${fmtMeters(state.trailerLengthCm)}.`;
+          `Lasset treng ${fmtMeters(calc.usedTotalCm)}, som er ${fmtMeters(overCm)} meir enn trallelengda på ${fmtMeters(state.trailerLengthCm)}.`;
       } else {
         overloadBanner.classList.add('hidden');
       }
@@ -1153,12 +1359,16 @@
       const totalUnits = state.frysEur + state.frysSkips + state.frysKar +
         state.kjolEur + state.kjolSkips + state.kjolKar;
       document.getElementById('totalUnitsBadge').textContent =
-        `${totalUnits}${totalUnits === 1 ? 'eining' : 'einingar'} lagt inn`;
+        `${totalUnits} ${totalUnits === 1 ? 'eining' : 'einingar'} lagt inn`;
 
       document.getElementById('resExtraKarStacked').textContent = calc.extraKarStacked;
       document.getElementById('resExtraKarStackedSub').textContent = calc.freeTopOnExistingKar
-        ? `\${calc.extraBigSpots} golvplassar × 2 + 1 på ledig kar`
-        : `${calc.extraBigSpots} golvplassar × 2`;  document.getElementById('resExtraKarSingle').textContent = calc.extraBigSpots; document.getElementById('resExtraKarSingleSub').textContent = `${calc.extraBigSpots} ledige golvplassar`;
+        ? `${calc.extraBigSpots} golvplassar × 2 + 1 på ledig kar`
+        : `${calc.extraBigSpots} golvplassar × 2`;
+
+      document.getElementById('resExtraKarSingle').textContent = calc.extraBigSpots;
+      document.getElementById('resExtraKarSingleSub').textContent =
+        `${calc.extraBigSpots} ledige golvplassar`;
 
       document.getElementById('resExtraSkips').textContent = calc.extraBigSpots;
       document.getElementById('resExtraSkipsSub').textContent =
@@ -1172,9 +1382,329 @@
         ? Math.round((calc.usedTotalCm / state.trailerLengthCm) * 100)
         : 0;
       document.getElementById('resLdmDetail').textContent =
-        `Brukt ${fmtMeters(calc.usedTotalCm)} av${fmtMeters(state.trailerLengthCm)}`;
+        `Brukt ${fmtMeters(calc.usedTotalCm)} av ${fmtMeters(state.trailerLengthCm)}`;
       document.getElementById('resFreeMeters').textContent =
         calc.isOverload ? '0,00 m' : fmtMeters(calc.freeTotalCm);
 
       const fillEl = document.getElementById('resFillPct');
-      fillEl.textContent = `${fillPct} \%`; fillEl.className = calc.isOverload ? 'px-2.5 py-0.5 rounded-lg bg-red-100 text-red-700 font-extrabold text-xs sm:text-sm' : 'px-2.5 py-0.5 rounded-lg bg-slate-100 text-slate-800 font-extrabold text-xs sm:text-sm';  const barContainer = document.getElementById('ldmBarContainer'); const barFrys = document.getElementById('barFrys'); const barDivider = document.getElementById('barDivider'); const barKjol = document.getElementById('barKjol'); const barEmpty = document.getElementById('barEmpty');  const pct = (cm) => `${Math.max(0, Math.min(100, (cm / state.trailerLengthCm) * 100
+      fillEl.textContent = `${fillPct} %`;
+      fillEl.className = calc.isOverload
+        ? 'px-2.5 py-0.5 rounded-lg bg-red-100 text-red-700 font-extrabold text-xs sm:text-sm'
+        : 'px-2.5 py-0.5 rounded-lg bg-slate-100 text-slate-800 font-extrabold text-xs sm:text-sm';
+
+      const barContainer = document.getElementById('ldmBarContainer');
+      const barFrys = document.getElementById('barFrys');
+      const barDivider = document.getElementById('barDivider');
+      const barKjol = document.getElementById('barKjol');
+      const barEmpty = document.getElementById('barEmpty');
+
+      const pct = (cm) => `${Math.max(0, Math.min(100, (cm / state.trailerLengthCm) * 100)).toFixed(2)}%`;
+      barFrys.style.width = pct(calc.frysZoneCm);
+      barDivider.style.width = pct(calc.dividerCm);
+      barKjol.style.width = pct(calc.kjolPack.lengthCm);
+      barKjol.className = calc.isOverload
+        ? 'bg-red-500 h-full transition-all duration-300'
+        : 'bg-indigo-600 h-full transition-all duration-300';
+
+      if (state.frysPos === 'bak') {
+        barContainer.append(barKjol, barEmpty, barDivider, barFrys);
+      } else {
+        barContainer.append(barFrys, barDivider, barKjol, barEmpty);
+      }
+
+      document.getElementById('barFrysText').textContent = fmtMeters(calc.frysZoneCm);
+      document.getElementById('barDividerText').textContent = fmtMeters(calc.dividerCm);
+      document.getElementById('barKjolText').textContent = fmtMeters(calc.kjolPack.lengthCm);
+      document.getElementById('barEmptyText').textContent = calc.isOverload ? '0,00 m' : fmtMeters(calc.freeTotalCm);
+      document.getElementById('barKjolAvailText').textContent =
+        `Tilgjengeleg kjøl: ${fmtMeters(Math.max(0, calc.availKjolCm))}`;
+
+      document.getElementById('frysSubtitle').textContent =
+        state.frysPos === 'bak' ? 'Bakerst mot bakdører' : 'Framme mot framvegg';
+      document.getElementById('frysLengthBadge').textContent = calc.hasFrys
+        ? fmtMeters(calc.frysReservedCm)
+        : '0,00 m';
+
+      const frysKarSummary = document.getElementById('frysKarSummary');
+      if (state.frysKar > 0) {
+        frysKarSummary.classList.remove('hidden');
+        const fk = calc.frysKarInfo;
+        const parts = [];
+        if (fk.stackedPairs > 0) parts.push(`${fk.stackedPairs} stabla ×2`);
+        if (fk.oddSingle > 0) parts.push(`1 enkelt`);
+        frysKarSummary.textContent = `${fk.totalKar} kar → ${fk.floorSpots} ${fk.floorSpots === 1 ? 'golvplass' : 'golvplassar'} (${parts.join(' + ')})`;
+      } else {
+        frysKarSummary.classList.add('hidden');
+      }
+
+      const frysInfoEl = document.getElementById('frysInfoText');
+      if (!calc.hasFrys) {
+        frysInfoEl.textContent = `Ingen last i frys (0,00 m). Ved bruk reserverer frys minst ${state.frysMinPll} pll (${fmtMeters(calc.frysMinCm)}) + ${state.dividerMarginCm} cm skillevegg.`;
+      } else if (calc.frysMinRuleApplied) {
+        frysInfoEl.textContent = `Reserverer minimum ${state.frysMinPll} pll (${fmtMeters(calc.frysMinCm)}) + ${state.dividerMarginCm} cm skillevegg = ${fmtMeters(calc.frysReservedCm)}.`;
+      } else {
+        frysInfoEl.textContent = `Frys utvida til ${fmtMeters(calc.frysZoneCm)} gods + ${state.dividerMarginCm} cm skillevegg = ${fmtMeters(calc.frysReservedCm)}.`;
+      }
+
+      document.getElementById('kjolSubtitle').textContent = calc.hasFrys
+        ? (state.frysPos === 'bak' ? 'Framme framfor skilleveggen' : 'Bak skilleveggen')
+        : 'Heile tralla tilgjengeleg';
+      document.getElementById('kjolLengthBadge').textContent = `${fmtMeters(calc.kjolPack.lengthCm)} brukt`;
+
+      const kjolKarSummary = document.getElementById('kjolKarSummary');
+      if (state.kjolKar > 0) {
+        kjolKarSummary.classList.remove('hidden');
+        const kk = calc.kjolKarInfo;
+        const parts = [];
+        if (kk.frontSingles > 0) parts.push(`${kk.frontSingles} single`);
+        if (kk.stackedPairs > 0) parts.push(`${kk.stackedPairs} stabla ×2`);
+        if (kk.oddSingle > 0) parts.push(`1 enkelt`);
+        kjolKarSummary.textContent = `${kk.totalKar} kar → ${kk.floorSpots} ${kk.floorSpots === 1 ? 'golvplass' : 'golvplassar'} (${parts.join(' + ')})`;
+      } else {
+        kjolKarSummary.classList.add('hidden');
+      }
+
+      const kjolInfoEl = document.getElementById('kjolInfoText');
+      if (calc.isOverload) {
+        kjolInfoEl.textContent = `Kjøl treng ${fmtMeters(calc.kjolPack.lengthCm)}, men berre ${fmtMeters(Math.max(0, calc.availKjolCm))} er ledig.`;
+      } else {
+        kjolInfoEl.textContent = `Brukt ${fmtMeters(calc.kjolPack.lengthCm)} av ${fmtMeters(calc.availKjolCm)} i kjøl • ${fmtMeters(calc.freeTotalCm)} ledig.`;
+      }
+
+      const diagramBadge = document.getElementById('diagramFreeBadge');
+      if (calc.isOverload) {
+        diagramBadge.textContent = `Overlast · +${fmtMeters(calc.usedTotalCm - state.trailerLengthCm)}`;
+        diagramBadge.className = 'text-xs font-bold px-3 py-1.5 rounded-xl bg-red-100 text-red-700 border border-red-200 self-start sm:self-auto';
+      } else {
+        diagramBadge.textContent = `Tomt · ${fmtMeters(calc.freeTotalCm)} ledig`;
+        diagramBadge.className = 'text-xs font-bold px-3 py-1.5 rounded-xl bg-slate-100 text-slate-700 border border-slate-200 self-start sm:self-auto';
+      }
+
+      updateQuickSingleButtons();
+      renderSvg(calc);
+    }
+
+    function updateFrysPosButtons() {
+      document.querySelectorAll('.frys-pos-btn').forEach((btn) => {
+        const active = btn.dataset.frysPos === state.frysPos;
+        btn.className = active
+          ? 'frys-pos-btn px-2.5 py-1 text-xs font-bold rounded-md transition cursor-pointer bg-sky-600 text-white shadow-sm'
+          : 'frys-pos-btn px-2.5 py-1 text-xs font-bold rounded-md transition cursor-pointer text-sky-800 hover:bg-sky-50';
+      });
+    }
+
+    function updateFrysMinButtons() {
+      document.querySelectorAll('.frys-min-btn').forEach((btn) => {
+        const active = Number(btn.dataset.frysMin) === state.frysMinPll;
+        btn.className = active
+          ? 'frys-min-btn px-2.5 py-1 text-xs font-bold rounded-md transition cursor-pointer bg-sky-600 text-white shadow-sm'
+          : 'frys-min-btn px-2.5 py-1 text-xs font-bold rounded-md transition cursor-pointer text-sky-800 hover:bg-sky-50';
+      });
+    }
+
+    function updateQuickSingleButtons() {
+      document.querySelectorAll('.quick-single-btn').forEach((btn) => {
+        const active = Number(btn.dataset.singleVal) === state.kjolKarSingle;
+        btn.className = active
+          ? 'quick-single-btn px-2.5 py-1 text-xs font-bold rounded-md border border-teal-700 bg-teal-600 text-white transition cursor-pointer'
+          : 'quick-single-btn px-2.5 py-1 text-xs font-bold rounded-md border border-slate-300 bg-white text-slate-700 hover:bg-slate-100 transition cursor-pointer';
+      });
+    }
+
+    function updatePresetButtons() {
+      document.querySelectorAll('.preset-btn').forEach((btn) => {
+        const presetCm = Math.round(parseFloat(btn.dataset.preset) * 100);
+        const active = presetCm === state.trailerLengthCm && state.trailerWidthCm === 248;
+        btn.className = active
+          ? 'preset-btn px-3.5 py-2.5 rounded-xl text-xs font-semibold border transition cursor-pointer bg-slate-900 text-white border-slate-900'
+          : 'preset-btn px-3.5 py-2.5 rounded-xl text-xs font-semibold border transition cursor-pointer bg-white text-slate-700 border-slate-300 hover:bg-slate-50';
+      });
+    }
+
+    function updateMarginButtons() {
+      document.getElementById('dividerMarginValue').textContent = `${state.dividerMarginCm} cm`;
+      document.getElementById('inputDividerMargin').value = state.dividerMarginCm;
+      document.querySelectorAll('.margin-btn').forEach((btn) => {
+        const active = Number(btn.dataset.margin) === state.dividerMarginCm;
+        btn.className = active
+          ? 'margin-btn flex-1 py-1.5 text-xs font-semibold rounded-lg border border-slate-900 bg-slate-900 text-white transition cursor-pointer'
+          : 'margin-btn flex-1 py-1.5 text-xs font-semibold rounded-lg border border-slate-300 bg-white text-slate-700 hover:bg-slate-100 transition cursor-pointer';
+      });
+    }
+
+    function updateStowButtons() {
+      document.querySelectorAll('.stow-btn').forEach((btn) => {
+        const active = btn.dataset.stow === state.stowMode;
+        btn.className = active
+          ? 'stow-btn flex-1 py-2 text-xs font-bold rounded-md transition cursor-pointer bg-slate-900 text-white'
+          : 'stow-btn flex-1 py-2 text-xs font-bold rounded-md transition cursor-pointer text-slate-600 hover:text-slate-900';
+      });
+      document.getElementById('stowHelpText').textContent = state.stowMode === 'optimal'
+        ? 'Kombinerer langs og på tvers for maks utnytting av flata.'
+        : 'Berre rette rekker i standard lengderetning (120 cm per rad).';
+    }
+
+    function syncSettingsInputs() {
+      document.getElementById('inputTrailerLength').value = (state.trailerLengthCm / 100).toFixed(2);
+      document.getElementById('inputTrailerWidth').value = (state.trailerWidthCm / 100).toFixed(2);
+      updateFrysPosButtons();
+      updateFrysMinButtons();
+      updatePresetButtons();
+      updateMarginButtons();
+      updateStowButtons();
+    }
+
+    function initEvents() {
+      const settingsPanel = document.getElementById('settingsPanel');
+      const btnToggleSettings = document.getElementById('btnToggleSettings');
+      const toggleSettings = (forceClose = false) => {
+        const willOpen = forceClose ? false : settingsPanel.classList.contains('hidden');
+        settingsPanel.classList.toggle('hidden', !willOpen);
+        btnToggleSettings.setAttribute('aria-expanded', String(willOpen));
+      };
+      btnToggleSettings.addEventListener('click', () => toggleSettings(false));
+      document.getElementById('btnCloseSettings').addEventListener('click', () => toggleSettings(true));
+
+      document.getElementById('btnReset').addEventListener('click', () => {
+        state.frysEur = 0;
+        state.frysSkips = 0;
+        state.frysKar = 0;
+        state.kjolEur = 0;
+        state.kjolSkips = 0;
+        state.kjolKar = 0;
+        state.kjolKarSingle = 0;
+        updateUI();
+      });
+
+      document.querySelectorAll('.stepper-btn').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const target = btn.dataset.target;
+          const delta = Number(btn.dataset.delta);
+          const maxVal = target.includes('Kar') ? 120 : 80;
+          let nextVal = Math.max(0, Math.min(maxVal, (state[target] || 0) + delta));
+          if (target === 'kjolKarSingle') {
+            nextVal = Math.min(nextVal, state.kjolKar);
+          }
+          state[target] = nextVal;
+          updateUI();
+        });
+      });
+
+      const bindNumericInput = (id, key, maxVal) => {
+        const input = document.getElementById(id);
+        input.addEventListener('input', () => {
+          const raw = parseInt(input.value, 10);
+          let val = Number.isNaN(raw) ? 0 : Math.max(0, Math.min(maxVal, raw));
+          if (key === 'kjolKarSingle') {
+            val = Math.min(val, state.kjolKar);
+          }
+          state[key] = val;
+          updateUI();
+        });
+        input.addEventListener('focus', () => input.select());
+      };
+
+      bindNumericInput('inputFrysEur', 'frysEur', 80);
+      bindNumericInput('inputFrysSkips', 'frysSkips', 80);
+      bindNumericInput('inputFrysKar', 'frysKar', 120);
+      bindNumericInput('inputKjolEur', 'kjolEur', 80);
+      bindNumericInput('inputKjolSkips', 'kjolSkips', 80);
+      bindNumericInput('inputKjolKar', 'kjolKar', 120);
+      bindNumericInput('inputKjolKarSingle', 'kjolKarSingle', 120);
+
+      document.querySelectorAll('.quick-single-btn').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const val = Number(btn.dataset.singleVal);
+          state.kjolKarSingle = Math.min(val, state.kjolKar);
+          updateUI();
+        });
+      });
+
+      document.querySelectorAll('.frys-pos-btn').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          state.frysPos = btn.dataset.frysPos;
+          saveSettings();
+          updateFrysPosButtons();
+          updateUI();
+        });
+      });
+
+      document.querySelectorAll('.frys-min-btn').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          state.frysMinPll = Number(btn.dataset.frysMin);
+          saveSettings();
+          updateFrysMinButtons();
+          updateUI();
+        });
+      });
+
+      document.querySelectorAll('.preset-btn').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          state.trailerLengthCm = Math.round(parseFloat(btn.dataset.preset) * 100);
+          state.trailerWidthCm = 248;
+          state.trailerLabel = btn.dataset.label;
+          saveSettings();
+          syncSettingsInputs();
+          updateUI();
+        });
+      });
+
+      document.getElementById('inputTrailerLength').addEventListener('input', (e) => {
+        const normalized = String(e.target.value).replace(',', '.');
+        const meters = parseFloat(normalized);
+        if (!Number.isNaN(meters) && meters >= 2 && meters <= 25) {
+          state.trailerLengthCm = Math.round(meters * 100);
+          state.trailerLabel = 'Eigendefinert tralle';
+          saveSettings();
+          updatePresetButtons();
+          updateUI();
+        }
+      });
+
+      document.getElementById('inputTrailerWidth').addEventListener('input', (e) => {
+        const normalized = String(e.target.value).replace(',', '.');
+        const meters = parseFloat(normalized);
+        if (!Number.isNaN(meters) && meters >= 1.2 && meters <= 3.0) {
+          state.trailerWidthCm = Math.round(meters * 100);
+          state.trailerLabel = 'Eigendefinert tralle';
+          saveSettings();
+          updatePresetButtons();
+          updateUI();
+        }
+      });
+
+      document.getElementById('inputDividerMargin').addEventListener('input', (e) => {
+        state.dividerMarginCm = Math.max(0, Math.min(30, parseInt(e.target.value, 10) || 0));
+        saveSettings();
+        updateMarginButtons();
+        updateUI();
+      });
+
+      document.querySelectorAll('.margin-btn').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          state.dividerMarginCm = Number(btn.dataset.margin);
+          saveSettings();
+          updateMarginButtons();
+          updateUI();
+        });
+      });
+
+      document.querySelectorAll('.stow-btn').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          state.stowMode = btn.dataset.stow;
+          saveSettings();
+          updateStowButtons();
+          updateUI();
+        });
+      });
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      loadSettings();
+      syncSettingsInputs();
+      initEvents();
+      updateUI();
+    });
+  </script>
+</body>
+</html>
