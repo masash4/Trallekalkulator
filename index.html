@@ -20,6 +20,7 @@
 <body class="bg-slate-100 text-slate-900 font-sans antialiased min-h-screen">
   <div class="max-w-6xl mx-auto px-3 sm:px-6 py-4 sm:py-6 space-y-4 sm:space-y-5">
 
+    <!-- Topplinje -->
     <header class="bg-slate-900 text-white rounded-2xl p-4 sm:p-5 shadow-md flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
       <div class="flex items-center gap-3">
         <div class="w-11 h-11 rounded-xl bg-indigo-500/20 border border-indigo-400/30 flex items-center justify-center shrink-0">
@@ -33,20 +34,76 @@
           <p id="headerSubtitle" class="text-xs sm:text-sm text-slate-300">Termotralle 33 pll • 13,60 m × 2,48 m</p>
         </div>
       </div>
-      <div class="flex items-center gap-2 self-start sm:self-auto">
-        <button id="btnToggleSettings" type="button" aria-expanded="false" aria-controls="settingsPanel" class="px-3.5 py-2.5 text-xs sm:text-sm font-semibold rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-100 border border-slate-700 transition cursor-pointer flex items-center gap-2">
+
+      <div class="flex flex-wrap items-center gap-2 self-start sm:self-auto">
+        <!-- Vel 1 eller 2 traller -->
+        <div class="inline-flex rounded-xl bg-slate-800 p-1 border border-slate-700" role="group" aria-label="Tal traller">
+          <button type="button" data-count="1" class="trailer-count-btn px-3 py-1.5 text-xs sm:text-sm font-bold rounded-lg transition cursor-pointer">1 tralle</button>
+          <button type="button" data-count="2" class="trailer-count-btn px-3 py-1.5 text-xs sm:text-sm font-bold rounded-lg transition cursor-pointer">2 traller</button>
+        </div>
+        <button id="btnToggleSettings" type="button" aria-expanded="false" aria-controls="settingsPanel" class="px-3.5 py-2 text-xs sm:text-sm font-semibold rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-100 border border-slate-700 transition cursor-pointer">
           Innstillingar
         </button>
-        <button id="btnReset" type="button" class="px-3.5 py-2.5 text-xs sm:text-sm font-semibold rounded-xl bg-rose-500/15 hover:bg-rose-500/25 text-rose-200 border border-rose-500/30 transition cursor-pointer">
+        <button id="btnReset" type="button" class="px-3.5 py-2 text-xs sm:text-sm font-semibold rounded-xl bg-rose-500/15 hover:bg-rose-500/25 text-rose-200 border border-rose-500/30 transition cursor-pointer">
           Nullstill
         </button>
       </div>
     </header>
 
+    <!-- Samla oversikt & tralleveljar (visast berre ved 2 traller) -->
+    <section id="multiTrailerBar" class="hidden bg-white rounded-2xl p-4 border border-slate-200 shadow-sm space-y-3">
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2.5">
+        <div class="inline-flex rounded-xl bg-slate-100 p-1 border border-slate-200 self-start" role="tablist">
+          <button type="button" data-tab="0" class="trailer-tab-btn px-4 py-2 text-xs sm:text-sm font-bold rounded-lg transition cursor-pointer flex items-center gap-2">
+            <span>Tralle 1</span>
+            <span id="tabBadge0" class="text-[11px] font-extrabold px-2 py-0.5 rounded-md bg-white/80 text-slate-700">0 %</span>
+          </button>
+          <button type="button" data-tab="1" class="trailer-tab-btn px-4 py-2 text-xs sm:text-sm font-bold rounded-lg transition cursor-pointer flex items-center gap-2">
+            <span>Tralle 2</span>
+            <span id="tabBadge1" class="text-[11px] font-extrabold px-2 py-0.5 rounded-md bg-white/80 text-slate-700">0 %</span>
+          </button>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-2">
+          <button id="btnAutoDistribute" type="button" class="px-3.5 py-2 text-xs font-bold rounded-xl bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 transition cursor-pointer">
+            Auto-fordel overlast
+          </button>
+          <button id="btnSwapTrailers" type="button" class="px-3.5 py-2 text-xs font-bold rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 transition cursor-pointer">
+            Byt om T1 ⇄ T2
+          </button>
+        </div>
+      </div>
+
+      <!-- Samla kapasitet for begge trallene -->
+      <div class="grid grid-cols-2 sm:grid-cols-5 gap-2 pt-2 border-t border-slate-100 text-xs">
+        <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-200/80">
+          <p class="text-[11px] font-semibold text-slate-500">Samla ledig lengde</p>
+          <p id="totFreeMeters" class="text-base font-extrabold text-slate-900 mt-0.5">27,20 m</p>
+        </div>
+        <div class="p-2.5 rounded-xl bg-emerald-50/60 border border-emerald-200/80">
+          <p class="text-[11px] font-semibold text-emerald-700">Samla Fiskekar (×2)</p>
+          <p id="totKarStacked" class="text-base font-extrabold text-slate-900 mt-0.5">0 kar</p>
+        </div>
+        <div class="p-2.5 rounded-xl bg-teal-50/60 border border-teal-200/80">
+          <p class="text-[11px] font-semibold text-teal-700">Samla Fiskekar (×1)</p>
+          <p id="totKarSingle" class="text-base font-extrabold text-slate-900 mt-0.5">0 kar</p>
+        </div>
+        <div class="p-2.5 rounded-xl bg-amber-50/60 border border-amber-200/80">
+          <p class="text-[11px] font-semibold text-amber-700">Samla Skipspall</p>
+          <p id="totSkips" class="text-base font-extrabold text-slate-900 mt-0.5">0 pll</p>
+        </div>
+        <div class="p-2.5 rounded-xl bg-indigo-50/60 border border-indigo-200/80 col-span-2 sm:col-span-1">
+          <p class="text-[11px] font-semibold text-indigo-700">Samla EUR-pall</p>
+          <p id="totEur" class="text-base font-extrabold text-slate-900 mt-0.5">0 pll</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Samanleggbart innstillingspanel -->
     <section id="settingsPanel" class="hidden bg-white rounded-2xl p-4 sm:p-5 border border-slate-200 shadow-sm space-y-4">
       <div class="flex items-center justify-between border-b border-slate-100 pb-3">
         <div>
-          <h2 class="font-bold text-base text-slate-900">Innstillingar</h2>
+          <h2 id="settingsTitle" class="font-bold text-base text-slate-900">Innstillingar</h2>
           <p class="text-xs text-slate-500">Endringar blir lagra automatisk i nettlesaren din</p>
         </div>
         <button id="btnCloseSettings" type="button" class="p-2 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition cursor-pointer" aria-label="Lukk">✕</button>
@@ -90,7 +147,7 @@
         </div>
         <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200 flex flex-col justify-between">
           <div>
-            <p class="text-xs font-bold uppercase tracking-wide text-slate-600 mb-2">Stuemetode</p>
+            <p class="text-xs font-bold uppercase tracking-wide text-slate-600 mb-2">Stuemetode (felles)</p>
             <div class="inline-flex rounded-lg bg-white border border-slate-300 p-0.5 w-full">
               <button type="button" data-stow="optimal" class="stow-btn flex-1 py-2 text-xs font-bold rounded-md transition cursor-pointer">Optimal stuing</button>
               <button type="button" data-stow="straight" class="stow-btn flex-1 py-2 text-xs font-bold rounded-md transition cursor-pointer">Rette rekker</button>
@@ -102,14 +159,15 @@
     </section>
 
     <div id="overloadBanner" class="hidden bg-red-600 text-white rounded-2xl p-4 shadow-md" role="alert">
-      <h2 class="font-bold text-base">For lite plass – lasset overstig trallelengda!</h2>
+      <h2 id="overloadTitle" class="font-bold text-base">For lite plass – lasset overstig trallelengda!</h2>
       <p id="overloadText" class="text-sm text-red-100 mt-0.5"></p>
     </div>
 
+    <!-- Resultatkort for aktiv tralle -->
     <section aria-label="Ledig plass i kjøl">
       <div class="flex flex-wrap items-center justify-between gap-2 mb-2.5 px-1">
         <div class="flex items-center gap-2">
-          <h2 class="text-xs font-bold uppercase tracking-wider text-slate-500">Ledig plass i kjøl</h2>
+          <h2 id="activeKjolTitle" class="text-xs font-bold uppercase tracking-wider text-slate-500">Ledig plass i kjøl</h2>
           <span id="stowModeBadge" class="text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-slate-200 text-slate-700">Optimal stuing</span>
         </div>
         <span id="totalUnitsBadge" class="text-xs font-semibold text-slate-600 bg-white px-3 py-1 rounded-full border border-slate-200 shadow-sm">0 einingar lagt inn</span>
@@ -190,6 +248,7 @@
       </div>
     </section>
 
+    <!-- Inndata-soner for aktiv tralle -->
     <section class="grid grid-cols-1 lg:grid-cols-2 gap-4">
       <!-- FRYS -->
       <div class="bg-white rounded-2xl p-4 sm:p-5 border border-sky-200 shadow-sm flex flex-col justify-between">
@@ -220,18 +279,20 @@
           </div>
 
           <div class="space-y-2.5">
-            <div class="flex items-center justify-between gap-3 p-3 rounded-xl bg-slate-50 border border-slate-200/80">
+            <div class="flex items-center justify-between gap-2 p-3 rounded-xl bg-slate-50 border border-slate-200/80">
               <div class="flex items-center gap-2.5"><span class="w-2.5 h-8 rounded-full bg-indigo-600"></span><div><label for="inputFrysEur" class="font-semibold text-sm text-slate-800 block">EUR-pall</label><span class="text-xs text-slate-500">120 × 80 cm</span></div></div>
               <div class="flex items-center gap-1.5">
+                <button type="button" data-move="frysEur" title="Flytt 1 til den andre tralla" class="move-btn hidden px-2 h-11 rounded-xl bg-slate-200 hover:bg-slate-300 text-slate-800 font-bold text-xs cursor-pointer">→ T2</button>
                 <button type="button" data-target="frysEur" data-delta="-1" class="stepper-btn w-11 h-11 rounded-xl bg-white hover:bg-slate-100 border border-slate-300 text-slate-700 font-bold text-xl cursor-pointer">−</button>
                 <input id="inputFrysEur" type="number" min="0" max="80" value="0" inputmode="numeric" class="w-14 h-11 text-center font-extrabold text-lg rounded-xl border border-slate-300 bg-white" />
                 <button type="button" data-target="frysEur" data-delta="1" class="stepper-btn w-11 h-11 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xl cursor-pointer">+</button>
               </div>
             </div>
 
-            <div class="flex items-center justify-between gap-3 p-3 rounded-xl bg-slate-50 border border-slate-200/80">
+            <div class="flex items-center justify-between gap-2 p-3 rounded-xl bg-slate-50 border border-slate-200/80">
               <div class="flex items-center gap-2.5"><span class="w-2.5 h-8 rounded-full bg-amber-500"></span><div><label for="inputFrysSkips" class="font-semibold text-sm text-slate-800 block">Skipspall</label><span class="text-xs text-slate-500">120 × 100 cm</span></div></div>
               <div class="flex items-center gap-1.5">
+                <button type="button" data-move="frysSkips" title="Flytt 1 til den andre tralla" class="move-btn hidden px-2 h-11 rounded-xl bg-slate-200 hover:bg-slate-300 text-slate-800 font-bold text-xs cursor-pointer">→ T2</button>
                 <button type="button" data-target="frysSkips" data-delta="-1" class="stepper-btn w-11 h-11 rounded-xl bg-white hover:bg-slate-100 border border-slate-300 text-slate-700 font-bold text-xl cursor-pointer">−</button>
                 <input id="inputFrysSkips" type="number" min="0" max="80" value="0" inputmode="numeric" class="w-14 h-11 text-center font-extrabold text-lg rounded-xl border border-slate-300 bg-white" />
                 <button type="button" data-target="frysSkips" data-delta="1" class="stepper-btn w-11 h-11 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-bold text-xl cursor-pointer">+</button>
@@ -239,9 +300,10 @@
             </div>
 
             <div class="p-3 rounded-xl bg-slate-50 border border-slate-200/80 space-y-2.5">
-              <div class="flex items-center justify-between gap-3">
+              <div class="flex items-center justify-between gap-2">
                 <div class="flex items-center gap-2.5"><span class="w-2.5 h-8 rounded-full bg-emerald-600"></span><div><label for="inputFrysKar" class="font-semibold text-sm text-slate-800 block">Fiskekar</label><span class="text-xs text-slate-500">120 × 100 cm • stabla ×2</span></div></div>
                 <div class="flex items-center gap-1.5">
+                  <button type="button" data-move="frysKar" title="Flytt 1 til den andre tralla" class="move-btn hidden px-2 h-11 rounded-xl bg-slate-200 hover:bg-slate-300 text-slate-800 font-bold text-xs cursor-pointer">→ T2</button>
                   <button type="button" data-target="frysKar" data-delta="-1" class="stepper-btn w-11 h-11 rounded-xl bg-white hover:bg-slate-100 border border-slate-300 text-slate-700 font-bold text-xl cursor-pointer">−</button>
                   <input id="inputFrysKar" type="number" min="0" max="120" value="0" inputmode="numeric" class="w-14 h-11 text-center font-extrabold text-lg rounded-xl border border-slate-300 bg-white" />
                   <button type="button" data-target="frysKar" data-delta="1" class="stepper-btn w-11 h-11 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xl cursor-pointer">+</button>
@@ -266,18 +328,20 @@
           </div>
 
           <div class="space-y-2.5">
-            <div class="flex items-center justify-between gap-3 p-3 rounded-xl bg-slate-50 border border-slate-200/80">
+            <div class="flex items-center justify-between gap-2 p-3 rounded-xl bg-slate-50 border border-slate-200/80">
               <div class="flex items-center gap-2.5"><span class="w-2.5 h-8 rounded-full bg-indigo-600"></span><div><label for="inputKjolEur" class="font-semibold text-sm text-slate-800 block">EUR-pall</label><span class="text-xs text-slate-500">120 × 80 cm</span></div></div>
               <div class="flex items-center gap-1.5">
+                <button type="button" data-move="kjolEur" title="Flytt 1 til den andre tralla" class="move-btn hidden px-2 h-11 rounded-xl bg-slate-200 hover:bg-slate-300 text-slate-800 font-bold text-xs cursor-pointer">→ T2</button>
                 <button type="button" data-target="kjolEur" data-delta="-1" class="stepper-btn w-11 h-11 rounded-xl bg-white hover:bg-slate-100 border border-slate-300 text-slate-700 font-bold text-xl cursor-pointer">−</button>
                 <input id="inputKjolEur" type="number" min="0" max="80" value="0" inputmode="numeric" class="w-14 h-11 text-center font-extrabold text-lg rounded-xl border border-slate-300 bg-white" />
                 <button type="button" data-target="kjolEur" data-delta="1" class="stepper-btn w-11 h-11 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xl cursor-pointer">+</button>
               </div>
             </div>
 
-            <div class="flex items-center justify-between gap-3 p-3 rounded-xl bg-slate-50 border border-slate-200/80">
+            <div class="flex items-center justify-between gap-2 p-3 rounded-xl bg-slate-50 border border-slate-200/80">
               <div class="flex items-center gap-2.5"><span class="w-2.5 h-8 rounded-full bg-amber-500"></span><div><label for="inputKjolSkips" class="font-semibold text-sm text-slate-800 block">Skipspall</label><span class="text-xs text-slate-500">120 × 100 cm</span></div></div>
               <div class="flex items-center gap-1.5">
+                <button type="button" data-move="kjolSkips" title="Flytt 1 til den andre tralla" class="move-btn hidden px-2 h-11 rounded-xl bg-slate-200 hover:bg-slate-300 text-slate-800 font-bold text-xs cursor-pointer">→ T2</button>
                 <button type="button" data-target="kjolSkips" data-delta="-1" class="stepper-btn w-11 h-11 rounded-xl bg-white hover:bg-slate-100 border border-slate-300 text-slate-700 font-bold text-xl cursor-pointer">−</button>
                 <input id="inputKjolSkips" type="number" min="0" max="80" value="0" inputmode="numeric" class="w-14 h-11 text-center font-extrabold text-lg rounded-xl border border-slate-300 bg-white" />
                 <button type="button" data-target="kjolSkips" data-delta="1" class="stepper-btn w-11 h-11 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-bold text-xl cursor-pointer">+</button>
@@ -285,9 +349,10 @@
             </div>
 
             <div class="p-3 rounded-xl bg-slate-50 border border-emerald-200/90 space-y-2.5">
-              <div class="flex items-center justify-between gap-3">
+              <div class="flex items-center justify-between gap-2">
                 <div class="flex items-center gap-2.5"><span class="w-2.5 h-8 rounded-full bg-emerald-600"></span><div><label for="inputKjolKar" class="font-semibold text-sm text-slate-800 block">Fiskekar</label><span class="text-xs text-slate-500">120 × 100 cm • stabla ×2</span></div></div>
                 <div class="flex items-center gap-1.5">
+                  <button type="button" data-move="kjolKar" title="Flytt 1 til den andre tralla" class="move-btn hidden px-2 h-11 rounded-xl bg-slate-200 hover:bg-slate-300 text-slate-800 font-bold text-xs cursor-pointer">→ T2</button>
                   <button type="button" data-target="kjolKar" data-delta="-1" class="stepper-btn w-11 h-11 rounded-xl bg-white hover:bg-slate-100 border border-slate-300 text-slate-700 font-bold text-xl cursor-pointer">−</button>
                   <input id="inputKjolKar" type="number" min="0" max="120" value="0" inputmode="numeric" class="w-14 h-11 text-center font-extrabold text-lg rounded-xl border border-slate-300 bg-white" />
                   <button type="button" data-target="kjolKar" data-delta="1" class="stepper-btn w-11 h-11 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xl cursor-pointer">+</button>
@@ -318,20 +383,41 @@
       </div>
     </section>
 
-    <!-- 2D-lasteplan -->
-    <section class="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200 shadow-sm space-y-4">
-      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-        <div>
-          <h3 class="font-bold text-base sm:text-lg text-slate-900">2D-lasteplan (sett ovanfrå)</h3>
-          <p class="text-xs text-slate-500">Framvegg (F) til venstre • Bakdører (B) til høgre</p>
+    <!-- 2D-lasteplan (viser 1 eller begge trallene) -->
+    <section class="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200 shadow-sm space-y-5">
+      <!-- Tralle 1 SVG -->
+      <div id="diagramBox0" class="space-y-3 rounded-xl transition">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+          <div>
+            <h3 id="diagramTitle0" class="font-bold text-base sm:text-lg text-slate-900">2D-lasteplan (sett ovanfrå)</h3>
+            <p class="text-xs text-slate-500">Framvegg (F) til venstre • Bakdører (B) til høgre</p>
+          </div>
+          <span id="diagramFreeBadge0" class="text-xs font-bold px-3 py-1.5 rounded-xl bg-slate-100 text-slate-700 border border-slate-200 self-start sm:self-auto">Tomt · 13,60 m ledig</span>
         </div>
-        <span id="diagramFreeBadge" class="text-xs font-bold px-3 py-1.5 rounded-xl bg-slate-100 text-slate-700 border border-slate-200 self-start sm:self-auto">Tomt · 13,60 m ledig</span>
-      </div>
-      <div class="w-full overflow-x-auto pb-1">
-        <div class="min-w-[680px]">
-          <svg id="trailerSvg" viewBox="0 0 1160 340" class="w-full h-auto block select-none" role="img" aria-label="2D-lasteplan"></svg>
+        <div class="w-full overflow-x-auto pb-1">
+          <div class="min-w-[680px]">
+            <svg id="trailerSvg0" viewBox="0 0 1160 340" class="w-full h-auto block select-none cursor-pointer" role="img" aria-label="2D-lasteplan Tralle 1"></svg>
+          </div>
         </div>
       </div>
+
+      <!-- Tralle 2 SVG (kun synleg ved 2 traller) -->
+      <div id="diagramBox1" class="hidden space-y-3 pt-4 border-t border-slate-200 rounded-xl transition">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+          <div>
+            <h3 id="diagramTitle1" class="font-bold text-base sm:text-lg text-slate-900">Tralle 2 – 2D-lasteplan</h3>
+            <p class="text-xs text-slate-500">Klikk på teikninga for å redigere Tralle 2</p>
+          </div>
+          <span id="diagramFreeBadge1" class="text-xs font-bold px-3 py-1.5 rounded-xl bg-slate-100 text-slate-700 border border-slate-200 self-start sm:self-auto">Tomt · 13,60 m ledig</span>
+        </div>
+        <div class="w-full overflow-x-auto pb-1">
+          <div class="min-w-[680px]">
+            <svg id="trailerSvg1" viewBox="0 0 1160 340" class="w-full h-auto block select-none cursor-pointer" role="img" aria-label="2D-lasteplan Tralle 2"></svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- Fargeforklaring -->
       <div class="flex flex-wrap items-center gap-x-5 gap-y-2 pt-2.5 border-t border-slate-100 text-xs text-slate-600">
         <span class="flex items-center gap-1.5"><span class="w-3.5 h-3.5 rounded bg-teal-500 border border-teal-800 inline-block"></span>Fiskekar single (×1)</span>
         <span class="flex items-center gap-1.5"><span class="w-3.5 h-3.5 rounded bg-emerald-600 border-2 border-emerald-900 inline-block"></span>Fiskekar stabla (×2)</span>
@@ -345,37 +431,58 @@
   </div>
 
   <script>
-    const STORAGE_KEY = 'trallekalkulator_settings_v1';
+    const STORAGE_KEY = 'trallekalkulator_settings_v2';
     const EUR_L = 120, EUR_W = 80, BIG_L = 120, BIG_W = 100;
 
-    const state = {
+    const makeTrailer = () => ({
       frysEur: 0, frysSkips: 0, frysKar: 0,
       kjolEur: 0, kjolSkips: 0, kjolKar: 0, kjolKarSingle: 0,
       frysPos: 'framme', frysMinPll: 3,
       trailerLengthCm: 1360, trailerWidthCm: 248,
-      trailerLabel: 'Termotralle 33 pll', dividerMarginCm: 10, stowMode: 'optimal',
+      trailerLabel: 'Termotralle 33 pll', dividerMarginCm: 10,
+    });
+
+    const app = {
+      trailerCount: 1, // 1 | 2
+      activeIdx: 0,    // 0 | 1
+      stowMode: 'optimal',
+      trailers: [makeTrailer(), makeTrailer()],
     };
+
+    const curT = () => app.trailers[app.activeIdx];
 
     function loadSettings() {
       try {
         const s = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null');
         if (!s || typeof s !== 'object') return;
-        if (s.frysPos === 'framme' || s.frysPos === 'bak') state.frysPos = s.frysPos;
-        if (s.frysMinPll === 3 || s.frysMinPll === 6) state.frysMinPll = s.frysMinPll;
-        if (typeof s.trailerLengthCm === 'number' && s.trailerLengthCm >= 200 && s.trailerLengthCm <= 2500) state.trailerLengthCm = Math.round(s.trailerLengthCm);
-        if (typeof s.trailerWidthCm === 'number' && s.trailerWidthCm >= 120 && s.trailerWidthCm <= 300) state.trailerWidthCm = Math.round(s.trailerWidthCm);
-        if (typeof s.trailerLabel === 'string' && s.trailerLabel.trim()) state.trailerLabel = s.trailerLabel.trim();
-        if (typeof s.dividerMarginCm === 'number' && s.dividerMarginCm >= 0 && s.dividerMarginCm <= 30) state.dividerMarginCm = Math.round(s.dividerMarginCm);
-        if (s.stowMode === 'optimal' || s.stowMode === 'straight') state.stowMode = s.stowMode;
+        if (s.trailerCount === 1 || s.trailerCount === 2) app.trailerCount = s.trailerCount;
+        if (s.stowMode === 'optimal' || s.stowMode === 'straight') app.stowMode = s.stowMode;
+        if (Array.isArray(s.trailers)) {
+          [0, 1].forEach((i) => {
+            const st = s.trailers[i];
+            if (!st) return;
+            const t = app.trailers[i];
+            if (st.frysPos === 'framme' || st.frysPos === 'bak') t.frysPos = st.frysPos;
+            if (st.frysMinPll === 3 || st.frysMinPll === 6) t.frysMinPll = st.frysMinPll;
+            if (typeof st.trailerLengthCm === 'number' && st.trailerLengthCm >= 200 && st.trailerLengthCm <= 2500) t.trailerLengthCm = Math.round(st.trailerLengthCm);
+            if (typeof st.trailerWidthCm === 'number' && st.trailerWidthCm >= 120 && st.trailerWidthCm <= 300) t.trailerWidthCm = Math.round(st.trailerWidthCm);
+            if (typeof st.trailerLabel === 'string' && st.trailerLabel.trim()) t.trailerLabel = st.trailerLabel.trim();
+            if (typeof st.dividerMarginCm === 'number' && st.dividerMarginCm >= 0 && st.dividerMarginCm <= 30) t.dividerMarginCm = Math.round(st.dividerMarginCm);
+          });
+        }
       } catch (e) {}
     }
 
     function saveSettings() {
       try {
         localStorage.setItem(STORAGE_KEY, JSON.stringify({
-          frysPos: state.frysPos, frysMinPll: state.frysMinPll,
-          trailerLengthCm: state.trailerLengthCm, trailerWidthCm: state.trailerWidthCm,
-          trailerLabel: state.trailerLabel, dividerMarginCm: state.dividerMarginCm, stowMode: state.stowMode,
+          trailerCount: app.trailerCount,
+          stowMode: app.stowMode,
+          trailers: app.trailers.map((t) => ({
+            frysPos: t.frysPos, frysMinPll: t.frysMinPll,
+            trailerLengthCm: t.trailerLengthCm, trailerWidthCm: t.trailerWidthCm,
+            trailerLabel: t.trailerLabel, dividerMarginCm: t.dividerMarginCm,
+          })),
         }));
       } catch (e) {}
     }
@@ -410,7 +517,6 @@
       return t;
     }
 
-    // DP-pakking: føretrekkjer rette rekker (liten straff per tverrstilt rad), og krev rett rad bakerst ved tomrom
     function packZone(eurCount, bigCount, stowMode, widthCm, requireStraightEnd = false) {
       const E = Math.max(0, Math.floor(eurCount));
       const B = Math.max(0, Math.floor(bigCount));
@@ -426,8 +532,7 @@
       const dpLen = new Int32Array(totalStates).fill(INF);
       const choice = new Int16Array(totalStates).fill(-1);
       const prevIdx = new Int32Array(totalStates).fill(-1);
-      dpCost[0] = 0;
-      dpLen[0] = 0;
+      dpCost[0] = 0; dpLen[0] = 0;
 
       for (let s = 0; s <= 1; s++) {
         for (let e = 0; e <= E; e++) {
@@ -446,7 +551,6 @@
               const ns = (s === 1 || !tpl.sideways) ? 1 : 0;
               const nIdx = ns * layerSize + ne * cols + nb;
               const candLen = curLen + tpl.len;
-              // Liten straff (+1) per tverrstilt rad slik at rette rekker alltid vinn ved lik lengde
               const candCost = curCost + tpl.len * 100 + (tpl.sideways ? 1 : 0);
               if (candCost < dpCost[nIdx]) {
                 dpCost[nIdx] = candCost;
@@ -459,24 +563,17 @@
         }
       }
 
-      const idx0 = E * cols + B;
-      const idx1 = layerSize + E * cols + B;
-      const endIdx = requireStraightEnd
-        ? (dpCost[idx1] < INF ? idx1 : idx0)
-        : (dpCost[idx1] <= dpCost[idx0] ? idx1 : idx0);
-
+      const idx0 = E * cols + B, idx1 = layerSize + E * cols + B;
+      const endIdx = requireStraightEnd ? (dpCost[idx1] < INF ? idx1 : idx0) : (dpCost[idx1] <= dpCost[idx0] ? idx1 : idx0);
       if (dpCost[endIdx] >= INF) return { lengthCm: 0, rows: [] };
 
       const rawRows = [];
       let curIdx = endIdx;
       while (curIdx > 0) {
-        const tIdx = choice[curIdx];
-        const pIdx = prevIdx[curIdx];
+        const tIdx = choice[curIdx], pIdx = prevIdx[curIdx];
         if (tIdx < 0 || pIdx < 0) break;
-
         const tpl = templates[tIdx];
-        const curRem = curIdx % layerSize;
-        const prevRem = pIdx % layerSize;
+        const curRem = curIdx % layerSize, prevRem = pIdx % layerSize;
         let remE = Math.floor(curRem / cols) - Math.floor(prevRem / cols);
         let remB = (curRem % cols) - (prevRem % cols);
         const activeSlots = [];
@@ -498,64 +595,65 @@
           }
         }
       }
-
       return { lengthCm: dpLen[endIdx], rows: rawRows };
     }
 
-    function findMaxExtraInKjol(availKjolCm, baseEur, baseBigSpots, extraKind) {
+    function findMaxExtraInKjol(t, availKjolCm, baseEur, baseBigSpots, extraKind) {
       if (availKjolCm <= 0) return 0;
-      if (packZone(baseEur, baseBigSpots, state.stowMode, state.trailerWidthCm, false).lengthCm > availKjolCm) return 0;
+      if (packZone(baseEur, baseBigSpots, app.stowMode, t.trailerWidthCm, false).lengthCm > availKjolCm) return 0;
       let low = 0, high = 120;
       while (low < high) {
         const mid = Math.ceil((low + high) / 2);
         const testEur = extraKind === 'eur' ? baseEur + mid : baseEur;
         const testBig = extraKind === 'big' ? baseBigSpots + mid : baseBigSpots;
-        if (packZone(testEur, testBig, state.stowMode, state.trailerWidthCm, false).lengthCm <= availKjolCm) low = mid;
+        if (packZone(testEur, testBig, app.stowMode, t.trailerWidthCm, false).lengthCm <= availKjolCm) low = mid;
         else high = mid - 1;
       }
       return low;
     }
 
-    function calculateAll() {
-      if (state.kjolKarSingle > state.kjolKar) state.kjolKarSingle = state.kjolKar;
-      const frysKarInfo = calcKarBreakdown(state.frysKar, 0);
-      const kjolKarInfo = calcKarBreakdown(state.kjolKar, state.kjolKarSingle);
-      const frysBigSpots = state.frysSkips + frysKarInfo.floorSpots;
-      const kjolBigSpots = state.kjolSkips + kjolKarInfo.floorSpots;
+    function calculateTrailer(t) {
+      if (t.kjolKarSingle > t.kjolKar) t.kjolKarSingle = t.kjolKar;
+      const frysKarInfo = calcKarBreakdown(t.frysKar, 0);
+      const kjolKarInfo = calcKarBreakdown(t.kjolKar, t.kjolKarSingle);
+      const frysBigSpots = t.frysSkips + frysKarInfo.floorSpots;
+      const kjolBigSpots = t.kjolSkips + kjolKarInfo.floorSpots;
 
-      const hasFrys = state.frysEur > 0 || frysBigSpots > 0;
-      const frysMinCm = state.frysMinPll === 6 ? 240 : 120;
+      const hasFrys = t.frysEur > 0 || frysBigSpots > 0;
+      const frysMinCm = t.frysMinPll === 6 ? 240 : 120;
 
-      let frysPack = packZone(state.frysEur, frysBigSpots, state.stowMode, state.trailerWidthCm, false);
+      let frysPack = packZone(t.frysEur, frysBigSpots, app.stowMode, t.trailerWidthCm, false);
       if (hasFrys && frysMinCm - frysPack.lengthCm > 20) {
-        frysPack = packZone(state.frysEur, frysBigSpots, state.stowMode, state.trailerWidthCm, true);
+        frysPack = packZone(t.frysEur, frysBigSpots, app.stowMode, t.trailerWidthCm, true);
       }
 
       let frysZoneCm = 0, dividerCm = 0, frysReservedCm = 0, frysMinRuleApplied = false;
       if (hasFrys) {
-        dividerCm = state.dividerMarginCm;
+        dividerCm = t.dividerMarginCm;
         if (frysPack.lengthCm < frysMinCm) { frysZoneCm = frysMinCm; frysMinRuleApplied = true; }
         else frysZoneCm = frysPack.lengthCm;
         frysReservedCm = frysZoneCm + dividerCm;
       }
 
-      const availKjolCm = state.trailerLengthCm - frysReservedCm;
-      let kjolPack = packZone(state.kjolEur, kjolBigSpots, state.stowMode, state.trailerWidthCm, false);
-      if ((state.kjolEur > 0 || kjolBigSpots > 0) && availKjolCm - kjolPack.lengthCm > 20) {
-        const safePack = packZone(state.kjolEur, kjolBigSpots, state.stowMode, state.trailerWidthCm, true);
+      const availKjolCm = t.trailerLengthCm - frysReservedCm;
+      let kjolPack = packZone(t.kjolEur, kjolBigSpots, app.stowMode, t.trailerWidthCm, false);
+      if ((t.kjolEur > 0 || kjolBigSpots > 0) && availKjolCm - kjolPack.lengthCm > 20) {
+        const safePack = packZone(t.kjolEur, kjolBigSpots, app.stowMode, t.trailerWidthCm, true);
         if (safePack.lengthCm <= availKjolCm) kjolPack = safePack;
       }
 
       const usedTotalCm = frysReservedCm + kjolPack.lengthCm;
-      const freeTotalCm = state.trailerLengthCm - usedTotalCm;
-      const isOverload = usedTotalCm > state.trailerLengthCm;
-      const extraEur = findMaxExtraInKjol(availKjolCm, state.kjolEur, kjolBigSpots, 'eur');
-      const extraBigSpots = findMaxExtraInKjol(availKjolCm, state.kjolEur, kjolBigSpots, 'big');
+      const freeTotalCm = t.trailerLengthCm - usedTotalCm;
+      const isOverload = usedTotalCm > t.trailerLengthCm;
+      const fillPct = t.trailerLengthCm > 0 ? Math.round((usedTotalCm / t.trailerLengthCm) * 100) : 0;
+
+      const extraEur = findMaxExtraInKjol(t, availKjolCm, t.kjolEur, kjolBigSpots, 'eur');
+      const extraBigSpots = findMaxExtraInKjol(t, availKjolCm, t.kjolEur, kjolBigSpots, 'big');
       const freeTopOnExistingKar = !isOverload && kjolKarInfo.oddSingle === 1 ? 1 : 0;
 
       return {
         frysKarInfo, kjolKarInfo, hasFrys, frysPack, frysMinCm, frysZoneCm, dividerCm, frysReservedCm,
-        frysMinRuleApplied, availKjolCm, kjolPack, usedTotalCm, freeTotalCm, isOverload,
+        frysMinRuleApplied, availKjolCm, kjolPack, usedTotalCm, freeTotalCm, isOverload, fillPct,
         extraEur, extraBigSpots, extraKarStacked: extraBigSpots * 2 + freeTopOnExistingKar, freeTopOnExistingKar,
       };
     }
@@ -569,8 +667,8 @@
       return q;
     }
 
-    function renderSvg(calc) {
-      const svg = document.getElementById('trailerSvg');
+    function renderSvg(svgId, t, calc) {
+      const svg = document.getElementById(svgId);
       const ns = 'http://www.w3.org/2000/svg';
       svg.innerHTML = '';
       const el = (tag, attrs = {}, text = null) => {
@@ -580,14 +678,14 @@
         return n;
       };
 
-      const mL = 58, mR = 58, mT = 44, drawW = 1044, drawH = 224;
-      const sX = drawW / state.trailerLengthCm, sY = drawH / state.trailerWidthCm;
+      const mL = 58, mT = 44, drawW = 1044, drawH = 224;
+      const sX = drawW / t.trailerLengthCm, sY = drawH / t.trailerWidthCm;
       const xOf = (cm) => mL + cm * sX;
       const yOf = (cm) => mT + cm * sY;
 
       svg.appendChild(el('rect', { x: mL, y: mT, width: drawW, height: drawH, rx: 10, fill: '#f8fafc', stroke: calc.isOverload ? '#dc2626' : '#334155', 'stroke-width': calc.isOverload ? 3 : 2.5 }));
 
-      const totalMeters = Math.floor(state.trailerLengthCm / 100);
+      const totalMeters = Math.floor(t.trailerLengthCm / 100);
       for (let m = 1; m <= totalMeters; m++) {
         const gx = xOf(m * 100);
         if (gx < mL + drawW - 2) svg.appendChild(el('line', { x1: gx, y1: mT + 2, x2: gx, y2: mT + drawH - 2, stroke: '#e2e8f0', 'stroke-width': 1, 'stroke-dasharray': '4 4' }));
@@ -601,15 +699,15 @@
       svg.appendChild(el('text', { x: mL + drawW + 29, y: mT + drawH / 2 - 4, 'text-anchor': 'middle', fill: '#fff', 'font-size': 15, 'font-weight': 800 }, 'B'));
       svg.appendChild(el('text', { x: mL + drawW + 29, y: mT + drawH / 2 + 14, 'text-anchor': 'middle', fill: '#cbd5e1', 'font-size': 9, 'font-weight': 600 }, 'BAK'));
 
-      const frysAtBack = state.frysPos === 'bak';
+      const frysAtBack = t.frysPos === 'bak';
       let frysStartCm = 0, divStartCm = 0, kjolStartCm = 0, emptyStartCm = 0;
       const emptyLenCm = Math.max(0, calc.freeTotalCm);
 
       if (calc.hasFrys) {
         if (frysAtBack) {
           kjolStartCm = 0;
-          frysStartCm = Math.max(0, state.trailerLengthCm - calc.frysZoneCm);
-          divStartCm = Math.max(0, state.trailerLengthCm - calc.frysReservedCm);
+          frysStartCm = Math.max(0, t.trailerLengthCm - calc.frysZoneCm);
+          divStartCm = Math.max(0, t.trailerLengthCm - calc.frysReservedCm);
           emptyStartCm = calc.kjolPack.lengthCm;
         } else {
           frysStartCm = 0;
@@ -638,7 +736,7 @@
           for (const slot of row.slots) {
             const rx = xOf(cur + slot.dx) + 2, ry = yOf(slot.dy) + 2;
             const rw = Math.max(4, slot.lx * sX - 4), rh = Math.max(4, slot.wy * sY - 4);
-            const isOut = (cur + slot.dx + slot.lx) > state.trailerLengthCm + 0.5;
+            const isOut = (cur + slot.dx + slot.lx) > t.trailerLengthCm + 0.5;
             let fill = '#4f46e5', stroke = '#312e81', label = 'EUR', sub = '', stacked = false;
             if (slot.kind === 'big') {
               const item = q[bi++] || { type: 'skips' };
@@ -664,8 +762,8 @@
         }
       };
 
-      if (calc.hasFrys) drawZone(calc.frysPack, frysStartCm, calc.frysKarInfo, state.frysSkips);
-      drawZone(calc.kjolPack, kjolStartCm, calc.kjolKarInfo, state.kjolSkips);
+      if (calc.hasFrys) drawZone(calc.frysPack, frysStartCm, calc.frysKarInfo, t.frysSkips);
+      drawZone(calc.kjolPack, kjolStartCm, calc.kjolKarInfo, t.kjolSkips);
 
       if (calc.availKjolCm > 0) {
         const ks = frysAtBack ? 0 : calc.frysReservedCm;
@@ -685,33 +783,103 @@
 
       const axisY = mT + drawH + 18;
       svg.appendChild(el('line', { x1: mL, y1: axisY, x2: mL + drawW, y2: axisY, stroke: '#94a3b8', 'stroke-width': 1.2 }));
-      const stepM = state.trailerLengthCm > 1000 ? 2 : 1;
+      const stepM = t.trailerLengthCm > 1000 ? 2 : 1;
       for (let m = 0; m <= totalMeters; m += stepM) {
         const tx = xOf(m * 100);
         svg.appendChild(el('line', { x1: tx, y1: axisY - 4, x2: tx, y2: axisY + 4, stroke: '#64748b', 'stroke-width': 1.2 }));
         svg.appendChild(el('text', { x: tx, y: axisY + 19, 'text-anchor': 'middle', fill: '#64748b', 'font-size': 11, 'font-weight': 600 }, `${m} m`));
       }
       const lastTickM = Math.floor(totalMeters / stepM) * stepM;
-      if (state.trailerLengthCm - lastTickM * 100 >= 45) {
+      if (t.trailerLengthCm - lastTickM * 100 >= 45) {
         svg.appendChild(el('line', { x1: mL + drawW, y1: axisY - 4, x2: mL + drawW, y2: axisY + 4, stroke: '#334155', 'stroke-width': 1.5 }));
-        svg.appendChild(el('text', { x: mL + drawW, y: axisY + 19, 'text-anchor': 'end', fill: '#334155', 'font-size': 11, 'font-weight': 700 }, fmtMeters(state.trailerLengthCm)));
+        svg.appendChild(el('text', { x: mL + drawW, y: axisY + 19, 'text-anchor': 'end', fill: '#334155', 'font-size': 11, 'font-weight': 700 }, fmtMeters(t.trailerLengthCm)));
       }
     }
 
-    function updateUI() {
-      const calc = calculateAll();
-      document.getElementById('headerSubtitle').textContent = `${state.trailerLabel} • ${fmtMeters(state.trailerLengthCm)} × ${fmtMeters(state.trailerWidthCm)}`;
+    // Auto-fordel overlast frå overfylt tralle til den andre tralla
+    function autoDistributeOverload() {
+      const c0 = calculateTrailer(app.trailers[0]);
+      const c1 = calculateTrailer(app.trailers[1]);
+      let srcIdx = c0.isOverload ? 0 : (c1.isOverload ? 1 : app.activeIdx);
+      let dstIdx = srcIdx === 0 ? 1 : 0;
+      const src = app.trailers[srcIdx], dst = app.trailers[dstIdx];
+      const keys = ['kjolEur', 'kjolSkips', 'kjolKar', 'frysEur', 'frysSkips', 'frysKar'];
 
-      ['frysEur','frysSkips','frysKar','kjolEur','kjolSkips','kjolKar','kjolKarSingle'].forEach((k) => {
-        document.getElementById('input' + k[0].toUpperCase() + k.slice(1)).value = state[k];
+      let guard = 0;
+      while (calculateTrailer(src).isOverload && guard < 200) {
+        guard++;
+        let moved = false;
+        for (const k of keys) {
+          if (src[k] > 0) {
+            src[k]--;
+            dst[k]++;
+            if (k === 'kjolKar' && src.kjolKarSingle > src.kjolKar) src.kjolKarSingle = src.kjolKar;
+            moved = true;
+            break;
+          }
+        }
+        if (!moved) break;
+      }
+      updateUI();
+    }
+
+    function updateUI() {
+      if (app.trailerCount === 1) app.activeIdx = 0;
+      const calcs = [calculateTrailer(app.trailers[0]), calculateTrailer(app.trailers[1])];
+      const t = curT(), calc = calcs[app.activeIdx];
+      const isMulti = app.trailerCount === 2;
+      const tName = isMulti ? `Tralle ${app.activeIdx + 1}` : '';
+
+      // Topptekst
+      document.getElementById('headerSubtitle').textContent = isMulti
+        ? `2 traller • Redigerer Tralle ${app.activeIdx + 1} (${t.trailerLabel} · ${fmtMeters(t.trailerLengthCm)})`
+        : `${t.trailerLabel} • ${fmtMeters(t.trailerLengthCm)} × ${fmtMeters(t.trailerWidthCm)}`;
+
+      document.getElementById('settingsTitle').textContent = isMulti ? `Innstillingar – Tralle ${app.activeIdx + 1}` : 'Innstillingar';
+      document.getElementById('activeKjolTitle').textContent = isMulti ? `Ledig plass i kjøl – Tralle ${app.activeIdx + 1}` : 'Ledig plass i kjøl';
+
+      // Multi-tralle bar og flytteknappar
+      document.getElementById('multiTrailerBar').classList.toggle('hidden', !isMulti);
+      document.getElementById('diagramBox1').classList.toggle('hidden', !isMulti);
+      document.querySelectorAll('.move-btn').forEach((b) => {
+        b.classList.toggle('hidden', !isMulti);
+        b.textContent = app.activeIdx === 0 ? '→ T2' : '← T1';
       });
 
+      if (isMulti) {
+        [0, 1].forEach((i) => {
+          const badge = document.getElementById(`tabBadge${i}`);
+          badge.textContent = calcs[i].isOverload ? 'OVERLAST' : `${calcs[i].fillPct} %`;
+          badge.className = calcs[i].isOverload
+            ? 'text-[11px] font-extrabold px-2 py-0.5 rounded-md bg-red-100 text-red-700'
+            : 'text-[11px] font-extrabold px-2 py-0.5 rounded-md bg-white/90 text-slate-700';
+        });
+        const totFree = Math.max(0, calcs[0].freeTotalCm) + Math.max(0, calcs[1].freeTotalCm);
+        document.getElementById('totFreeMeters').textContent = fmtMeters(totFree);
+        document.getElementById('totKarStacked').textContent = `${calcs[0].extraKarStacked + calcs[1].extraKarStacked} kar`;
+        document.getElementById('totKarSingle').textContent = `${calcs[0].extraBigSpots + calcs[1].extraBigSpots} kar`;
+        document.getElementById('totSkips').textContent = `${calcs[0].extraBigSpots + calcs[1].extraBigSpots} pll`;
+        document.getElementById('totEur').textContent = `${calcs[0].extraEur + calcs[1].extraEur} pll`;
+      }
+
+      // Synk inndatafelt
+      ['frysEur','frysSkips','frysKar','kjolEur','kjolSkips','kjolKar','kjolKarSingle'].forEach((k) => {
+        document.getElementById('input' + k[0].toUpperCase() + k.slice(1)).value = t[k];
+      });
+
+      // Overlast-banner
       const ob = document.getElementById('overloadBanner');
       ob.classList.toggle('hidden', !calc.isOverload);
-      if (calc.isOverload) document.getElementById('overloadText').textContent = `Lasset treng ${fmtMeters(calc.usedTotalCm)}, som er ${fmtMeters(calc.usedTotalCm - state.trailerLengthCm)} meir enn trallelengda på ${fmtMeters(state.trailerLengthCm)}.`;
+      if (calc.isOverload) {
+        document.getElementById('overloadTitle').textContent = isMulti
+          ? `For lite plass på ${tName} – bruk «Auto-fordel overlast» eller flytt gods!`
+          : 'For lite plass – lasset overstig trallelengda!';
+        document.getElementById('overloadText').textContent = `Lasset treng ${fmtMeters(calc.usedTotalCm)}, som er ${fmtMeters(calc.usedTotalCm - t.trailerLengthCm)} meir enn trallelengda på ${fmtMeters(t.trailerLengthCm)}.`;
+      }
 
-      document.getElementById('stowModeBadge').textContent = state.stowMode === 'optimal' ? 'Optimal stuing' : 'Rette rekker';
-      const totalUnits = state.frysEur + state.frysSkips + state.frysKar + state.kjolEur + state.kjolSkips + state.kjolKar;
+      // Resultatkort for aktiv tralle
+      document.getElementById('stowModeBadge').textContent = app.stowMode === 'optimal' ? 'Optimal stuing' : 'Rette rekker';
+      const totalUnits = t.frysEur + t.frysSkips + t.frysKar + t.kjolEur + t.kjolSkips + t.kjolKar;
       document.getElementById('totalUnitsBadge').textContent = `${totalUnits} ${totalUnits === 1 ? 'eining' : 'einingar'} lagt inn`;
 
       document.getElementById('resExtraKarStacked').textContent = calc.extraKarStacked;
@@ -723,20 +891,19 @@
       document.getElementById('resExtraEur').textContent = calc.extraEur;
       document.getElementById('resExtraEurSub').textContent = calc.isOverload ? 'Ingen ledig plass' : 'Ledig i kjøl';
 
-      const fillPct = state.trailerLengthCm > 0 ? Math.round((calc.usedTotalCm / state.trailerLengthCm) * 100) : 0;
-      document.getElementById('resLdmDetail').textContent = `Brukt ${fmtMeters(calc.usedTotalCm)} av ${fmtMeters(state.trailerLengthCm)}`;
+      document.getElementById('resLdmDetail').textContent = `Brukt ${fmtMeters(calc.usedTotalCm)} av ${fmtMeters(t.trailerLengthCm)}`;
       document.getElementById('resFreeMeters').textContent = calc.isOverload ? '0,00 m' : fmtMeters(calc.freeTotalCm);
       const fillEl = document.getElementById('resFillPct');
-      fillEl.textContent = `${fillPct} %`;
+      fillEl.textContent = `${calc.fillPct} %`;
       fillEl.className = calc.isOverload ? 'px-2.5 py-0.5 rounded-lg bg-red-100 text-red-700 font-extrabold text-xs sm:text-sm' : 'px-2.5 py-0.5 rounded-lg bg-slate-100 text-slate-800 font-extrabold text-xs sm:text-sm';
 
       const barC = document.getElementById('ldmBarContainer'), bF = document.getElementById('barFrys'), bD = document.getElementById('barDivider'), bK = document.getElementById('barKjol'), bE = document.getElementById('barEmpty');
-      const pct = (cm) => `${Math.max(0, Math.min(100, (cm / state.trailerLengthCm) * 100)).toFixed(2)}%`;
+      const pct = (cm) => `${Math.max(0, Math.min(100, (cm / t.trailerLengthCm) * 100)).toFixed(2)}%`;
       bF.style.width = pct(calc.frysZoneCm);
       bD.style.width = pct(calc.dividerCm);
       bK.style.width = pct(calc.kjolPack.lengthCm);
       bK.className = calc.isOverload ? 'bg-red-500 h-full transition-all duration-300' : 'bg-indigo-600 h-full transition-all duration-300';
-      if (state.frysPos === 'bak') barC.append(bK, bE, bD, bF); else barC.append(bF, bD, bK, bE);
+      if (t.frysPos === 'bak') barC.append(bK, bE, bD, bF); else barC.append(bF, bD, bK, bE);
 
       document.getElementById('barFrysText').textContent = fmtMeters(calc.frysZoneCm);
       document.getElementById('barDividerText').textContent = fmtMeters(calc.dividerCm);
@@ -744,11 +911,11 @@
       document.getElementById('barEmptyText').textContent = calc.isOverload ? '0,00 m' : fmtMeters(calc.freeTotalCm);
       document.getElementById('barKjolAvailText').textContent = `Tilgjengeleg kjøl: ${fmtMeters(Math.max(0, calc.availKjolCm))}`;
 
-      document.getElementById('frysSubtitle').textContent = state.frysPos === 'bak' ? 'Bakerst mot bakdører' : 'Framme mot framvegg';
+      document.getElementById('frysSubtitle').textContent = t.frysPos === 'bak' ? 'Bakerst mot bakdører' : 'Framme mot framvegg';
       document.getElementById('frysLengthBadge').textContent = calc.hasFrys ? fmtMeters(calc.frysReservedCm) : '0,00 m';
 
       const fks = document.getElementById('frysKarSummary');
-      if (state.frysKar > 0) {
+      if (t.frysKar > 0) {
         fks.classList.remove('hidden');
         const fk = calc.frysKarInfo, p = [];
         if (fk.stackedPairs) p.push(`${fk.stackedPairs} stabla ×2`);
@@ -757,16 +924,16 @@
       } else fks.classList.add('hidden');
 
       document.getElementById('frysInfoText').textContent = !calc.hasFrys
-        ? `Ingen last i frys (0,00 m). Ved bruk reserverer frys minst ${state.frysMinPll} pll (${fmtMeters(calc.frysMinCm)}) + ${state.dividerMarginCm} cm skillevegg.`
+        ? `Ingen last i frys (0,00 m). Ved bruk reserverer frys minst ${t.frysMinPll} pll (${fmtMeters(calc.frysMinCm)}) + ${t.dividerMarginCm} cm skillevegg.`
         : calc.frysMinRuleApplied
-          ? `Reserverer minimum ${state.frysMinPll} pll (${fmtMeters(calc.frysMinCm)}) + ${state.dividerMarginCm} cm skillevegg = ${fmtMeters(calc.frysReservedCm)}.`
-          : `Frys utvida til ${fmtMeters(calc.frysZoneCm)} gods + ${state.dividerMarginCm} cm skillevegg = ${fmtMeters(calc.frysReservedCm)}.`;
+          ? `Reserverer minimum ${t.frysMinPll} pll (${fmtMeters(calc.frysMinCm)}) + ${t.dividerMarginCm} cm skillevegg = ${fmtMeters(calc.frysReservedCm)}.`
+          : `Frys utvida til ${fmtMeters(calc.frysZoneCm)} gods + ${t.dividerMarginCm} cm skillevegg = ${fmtMeters(calc.frysReservedCm)}.`;
 
-      document.getElementById('kjolSubtitle').textContent = calc.hasFrys ? (state.frysPos === 'bak' ? 'Framme framfor skilleveggen' : 'Bak skilleveggen') : 'Heile tralla tilgjengeleg';
+      document.getElementById('kjolSubtitle').textContent = calc.hasFrys ? (t.frysPos === 'bak' ? 'Framme framfor skilleveggen' : 'Bak skilleveggen') : 'Heile tralla tilgjengeleg';
       document.getElementById('kjolLengthBadge').textContent = `${fmtMeters(calc.kjolPack.lengthCm)} brukt`;
 
       const kks = document.getElementById('kjolKarSummary');
-      if (state.kjolKar > 0) {
+      if (t.kjolKar > 0) {
         kks.classList.remove('hidden');
         const kk = calc.kjolKarInfo, p = [];
         if (kk.frontSingles) p.push(`${kk.frontSingles} single`);
@@ -779,73 +946,126 @@
         ? `Kjøl treng ${fmtMeters(calc.kjolPack.lengthCm)}, men berre ${fmtMeters(Math.max(0, calc.availKjolCm))} er ledig.`
         : `Brukt ${fmtMeters(calc.kjolPack.lengthCm)} av ${fmtMeters(calc.availKjolCm)} i kjøl • ${fmtMeters(calc.freeTotalCm)} ledig.`;
 
-      const db = document.getElementById('diagramFreeBadge');
-      db.textContent = calc.isOverload ? `Overlast · +${fmtMeters(calc.usedTotalCm - state.trailerLengthCm)}` : `Tomt · ${fmtMeters(calc.freeTotalCm)} ledig`;
-      db.className = calc.isOverload
-        ? 'text-xs font-bold px-3 py-1.5 rounded-xl bg-red-100 text-red-700 border border-red-200 self-start sm:self-auto'
-        : 'text-xs font-bold px-3 py-1.5 rounded-xl bg-slate-100 text-slate-700 border border-slate-200 self-start sm:self-auto';
-
       document.querySelectorAll('.quick-single-btn').forEach((b) => {
-        const a = Number(b.dataset.singleVal) === state.kjolKarSingle;
+        const a = Number(b.dataset.singleVal) === t.kjolKarSingle;
         b.className = a ? 'quick-single-btn px-2.5 py-1 text-xs font-bold rounded-md border border-teal-700 bg-teal-600 text-white transition cursor-pointer' : 'quick-single-btn px-2.5 py-1 text-xs font-bold rounded-md border border-slate-300 bg-white text-slate-700 hover:bg-slate-100 transition cursor-pointer';
       });
-      renderSvg(calc);
+
+      // Oppdater 2D-teikningar (1 eller begge)
+      [0, 1].forEach((i) => {
+        if (i === 1 && !isMulti) return;
+        const ti = app.trailers[i], ci = calcs[i];
+        document.getElementById(`diagramTitle${i}`).textContent = isMulti
+          ? `Tralle ${i + 1} (${ti.trailerLabel} · ${fmtMeters(ti.trailerLengthCm)})${app.activeIdx === i ? ' — Aktiv' : ''}`
+          : '2D-lasteplan (sett ovanfrå)';
+        const db = document.getElementById(`diagramFreeBadge${i}`);
+        db.textContent = ci.isOverload ? `Overlast · +${fmtMeters(ci.usedTotalCm - ti.trailerLengthCm)}` : `Tomt · ${fmtMeters(ci.freeTotalCm)} ledig`;
+        db.className = ci.isOverload
+          ? 'text-xs font-bold px-3 py-1.5 rounded-xl bg-red-100 text-red-700 border border-red-200 self-start sm:self-auto'
+          : 'text-xs font-bold px-3 py-1.5 rounded-xl bg-slate-100 text-slate-700 border border-slate-200 self-start sm:self-auto';
+        const box = document.getElementById(`diagramBox${i}`);
+        box.className = isMulti && app.activeIdx === i
+          ? 'space-y-3 p-3 -mx-3 rounded-xl bg-indigo-50/40 ring-2 ring-indigo-500/40 transition'
+          : (i === 1 ? 'space-y-3 pt-4 border-t border-slate-200 rounded-xl transition' : 'space-y-3 rounded-xl transition');
+        renderSvg(`trailerSvg${i}`, ti, ci);
+      });
+
+      syncSettingsUI();
     }
 
     function syncSettingsUI() {
-      document.getElementById('inputTrailerLength').value = (state.trailerLengthCm / 100).toFixed(2);
-      document.getElementById('inputTrailerWidth').value = (state.trailerWidthCm / 100).toFixed(2);
-      document.getElementById('dividerMarginValue').textContent = `${state.dividerMarginCm} cm`;
-      document.getElementById('inputDividerMargin').value = state.dividerMarginCm;
+      const t = curT();
+      document.getElementById('inputTrailerLength').value = (t.trailerLengthCm / 100).toFixed(2);
+      document.getElementById('inputTrailerWidth').value = (t.trailerWidthCm / 100).toFixed(2);
+      document.getElementById('dividerMarginValue').textContent = `${t.dividerMarginCm} cm`;
+      document.getElementById('inputDividerMargin').value = t.dividerMarginCm;
 
-      document.querySelectorAll('.frys-pos-btn').forEach((b) => b.className = b.dataset.frysPos === state.frysPos ? 'frys-pos-btn px-2.5 py-1 text-xs font-bold rounded-md transition cursor-pointer bg-sky-600 text-white shadow-sm' : 'frys-pos-btn px-2.5 py-1 text-xs font-bold rounded-md transition cursor-pointer text-sky-800 hover:bg-sky-50');
-      document.querySelectorAll('.frys-min-btn').forEach((b) => b.className = Number(b.dataset.frysMin) === state.frysMinPll ? 'frys-min-btn px-2.5 py-1 text-xs font-bold rounded-md transition cursor-pointer bg-sky-600 text-white shadow-sm' : 'frys-min-btn px-2.5 py-1 text-xs font-bold rounded-md transition cursor-pointer text-sky-800 hover:bg-sky-50');
-      document.querySelectorAll('.preset-btn').forEach((b) => b.className = Math.round(parseFloat(b.dataset.preset) * 100) === state.trailerLengthCm && state.trailerWidthCm === 248 ? 'preset-btn px-3.5 py-2.5 rounded-xl text-xs font-semibold border transition cursor-pointer bg-slate-900 text-white border-slate-900' : 'preset-btn px-3.5 py-2.5 rounded-xl text-xs font-semibold border transition cursor-pointer bg-white text-slate-700 border-slate-300 hover:bg-slate-50');
-      document.querySelectorAll('.margin-btn').forEach((b) => b.className = Number(b.dataset.margin) === state.dividerMarginCm ? 'margin-btn flex-1 py-1.5 text-xs font-semibold rounded-lg border border-slate-900 bg-slate-900 text-white transition cursor-pointer' : 'margin-btn flex-1 py-1.5 text-xs font-semibold rounded-lg border border-slate-300 bg-white text-slate-700 hover:bg-slate-100 transition cursor-pointer');
-      document.querySelectorAll('.stow-btn').forEach((b) => b.className = b.dataset.stow === state.stowMode ? 'stow-btn flex-1 py-2 text-xs font-bold rounded-md transition cursor-pointer bg-slate-900 text-white' : 'stow-btn flex-1 py-2 text-xs font-bold rounded-md transition cursor-pointer text-slate-600 hover:text-slate-900');
-      document.getElementById('stowHelpText').textContent = state.stowMode === 'optimal' ? 'Rette rekker først – på tvers berre når det sparer lengde (aldri bakerst).' : 'Berre rette rekker i standard lengderetning (120 cm per rad).';
+      document.querySelectorAll('.trailer-count-btn').forEach((b) => b.className = Number(b.dataset.count) === app.trailerCount ? 'trailer-count-btn px-3 py-1.5 text-xs sm:text-sm font-bold rounded-lg transition cursor-pointer bg-indigo-600 text-white shadow-sm' : 'trailer-count-btn px-3 py-1.5 text-xs sm:text-sm font-bold rounded-lg transition cursor-pointer text-slate-300 hover:text-white');
+      document.querySelectorAll('.trailer-tab-btn').forEach((b) => b.className = Number(b.dataset.tab) === app.activeIdx ? 'trailer-tab-btn px-4 py-2 text-xs sm:text-sm font-bold rounded-lg transition cursor-pointer flex items-center gap-2 bg-slate-900 text-white shadow-sm' : 'trailer-tab-btn px-4 py-2 text-xs sm:text-sm font-bold rounded-lg transition cursor-pointer flex items-center gap-2 text-slate-600 hover:text-slate-900');
+      document.querySelectorAll('.frys-pos-btn').forEach((b) => b.className = b.dataset.frysPos === t.frysPos ? 'frys-pos-btn px-2.5 py-1 text-xs font-bold rounded-md transition cursor-pointer bg-sky-600 text-white shadow-sm' : 'frys-pos-btn px-2.5 py-1 text-xs font-bold rounded-md transition cursor-pointer text-sky-800 hover:bg-sky-50');
+      document.querySelectorAll('.frys-min-btn').forEach((b) => b.className = Number(b.dataset.frysMin) === t.frysMinPll ? 'frys-min-btn px-2.5 py-1 text-xs font-bold rounded-md transition cursor-pointer bg-sky-600 text-white shadow-sm' : 'frys-min-btn px-2.5 py-1 text-xs font-bold rounded-md transition cursor-pointer text-sky-800 hover:bg-sky-50');
+      document.querySelectorAll('.preset-btn').forEach((b) => b.className = Math.round(parseFloat(b.dataset.preset) * 100) === t.trailerLengthCm && t.trailerWidthCm === 248 ? 'preset-btn px-3.5 py-2.5 rounded-xl text-xs font-semibold border transition cursor-pointer bg-slate-900 text-white border-slate-900' : 'preset-btn px-3.5 py-2.5 rounded-xl text-xs font-semibold border transition cursor-pointer bg-white text-slate-700 border-slate-300 hover:bg-slate-50');
+      document.querySelectorAll('.margin-btn').forEach((b) => b.className = Number(b.dataset.margin) === t.dividerMarginCm ? 'margin-btn flex-1 py-1.5 text-xs font-semibold rounded-lg border border-slate-900 bg-slate-900 text-white transition cursor-pointer' : 'margin-btn flex-1 py-1.5 text-xs font-semibold rounded-lg border border-slate-300 bg-white text-slate-700 hover:bg-slate-100 transition cursor-pointer');
+      document.querySelectorAll('.stow-btn').forEach((b) => b.className = b.dataset.stow === app.stowMode ? 'stow-btn flex-1 py-2 text-xs font-bold rounded-md transition cursor-pointer bg-slate-900 text-white' : 'stow-btn flex-1 py-2 text-xs font-bold rounded-md transition cursor-pointer text-slate-600 hover:text-slate-900');
+      document.getElementById('stowHelpText').textContent = app.stowMode === 'optimal' ? 'Rette rekker først – på tvers berre når det sparer lengde (aldri bakerst).' : 'Berre rette rekker i standard lengderetning (120 cm per rad).';
     }
 
     window.addEventListener('DOMContentLoaded', () => {
       loadSettings();
-      syncSettingsUI();
       updateUI();
 
       const sp = document.getElementById('settingsPanel'), bt = document.getElementById('btnToggleSettings');
       bt.addEventListener('click', () => { const open = sp.classList.contains('hidden'); sp.classList.toggle('hidden', !open); bt.setAttribute('aria-expanded', String(open)); });
       document.getElementById('btnCloseSettings').addEventListener('click', () => { sp.classList.add('hidden'); bt.setAttribute('aria-expanded', 'false'); });
-      document.getElementById('btnReset').addEventListener('click', () => { Object.assign(state, { frysEur: 0, frysSkips: 0, frysKar: 0, kjolEur: 0, kjolSkips: 0, kjolKar: 0, kjolKarSingle: 0 }); updateUI(); });
+
+      document.getElementById('btnReset').addEventListener('click', () => {
+        app.trailers.forEach((t) => Object.assign(t, { frysEur: 0, frysSkips: 0, frysKar: 0, kjolEur: 0, kjolSkips: 0, kjolKar: 0, kjolKarSingle: 0 }));
+        updateUI();
+      });
+
+      document.querySelectorAll('.trailer-count-btn').forEach((b) => b.addEventListener('click', () => {
+        app.trailerCount = Number(b.dataset.count);
+        if (app.trailerCount === 1) app.activeIdx = 0;
+        saveSettings();
+        updateUI();
+      }));
+
+      document.querySelectorAll('.trailer-tab-btn').forEach((b) => b.addEventListener('click', () => {
+        app.activeIdx = Number(b.dataset.tab);
+        updateUI();
+      }));
+
+      [0, 1].forEach((i) => document.getElementById(`trailerSvg${i}`).addEventListener('click', () => {
+        if (app.trailerCount === 2 && app.activeIdx !== i) { app.activeIdx = i; updateUI(); }
+      }));
+
+      document.getElementById('btnAutoDistribute').addEventListener('click', autoDistributeOverload);
+      document.getElementById('btnSwapTrailers').addEventListener('click', () => {
+        [app.trailers[0], app.trailers[1]] = [app.trailers[1], app.trailers[0]];
+        saveSettings();
+        updateUI();
+      });
+
+      document.querySelectorAll('.move-btn').forEach((b) => b.addEventListener('click', () => {
+        const k = b.dataset.move, src = curT(), dst = app.trailers[app.activeIdx === 0 ? 1 : 0];
+        if (src[k] > 0) {
+          src[k]--;
+          dst[k]++;
+          if (k === 'kjolKar' && src.kjolKarSingle > src.kjolKar) src.kjolKarSingle = src.kjolKar;
+          updateUI();
+        }
+      }));
 
       document.querySelectorAll('.stepper-btn').forEach((b) => b.addEventListener('click', () => {
-        const k = b.dataset.target, max = k.includes('Kar') ? 120 : 80;
-        let v = Math.max(0, Math.min(max, (state[k] || 0) + Number(b.dataset.delta)));
-        if (k === 'kjolKarSingle') v = Math.min(v, state.kjolKar);
-        state[k] = v;
+        const t = curT(), k = b.dataset.target, max = k.includes('Kar') ? 120 : 80;
+        let v = Math.max(0, Math.min(max, (t[k] || 0) + Number(b.dataset.delta)));
+        if (k === 'kjolKarSingle') v = Math.min(v, t.kjolKar);
+        t[k] = v;
         updateUI();
       }));
 
       [['inputFrysEur','frysEur',80],['inputFrysSkips','frysSkips',80],['inputFrysKar','frysKar',120],['inputKjolEur','kjolEur',80],['inputKjolSkips','kjolSkips',80],['inputKjolKar','kjolKar',120],['inputKjolKarSingle','kjolKarSingle',120]].forEach(([id, k, max]) => {
         const inp = document.getElementById(id);
         inp.addEventListener('input', () => {
-          const r = parseInt(inp.value, 10);
+          const t = curT(), r = parseInt(inp.value, 10);
           let v = Number.isNaN(r) ? 0 : Math.max(0, Math.min(max, r));
-          if (k === 'kjolKarSingle') v = Math.min(v, state.kjolKar);
-          state[k] = v;
+          if (k === 'kjolKarSingle') v = Math.min(v, t.kjolKar);
+          t[k] = v;
           updateUI();
         });
         inp.addEventListener('focus', () => inp.select());
       });
 
-      document.querySelectorAll('.quick-single-btn').forEach((b) => b.addEventListener('click', () => { state.kjolKarSingle = Math.min(Number(b.dataset.singleVal), state.kjolKar); updateUI(); }));
-      document.querySelectorAll('.frys-pos-btn').forEach((b) => b.addEventListener('click', () => { state.frysPos = b.dataset.frysPos; saveSettings(); syncSettingsUI(); updateUI(); }));
-      document.querySelectorAll('.frys-min-btn').forEach((b) => b.addEventListener('click', () => { state.frysMinPll = Number(b.dataset.frysMin); saveSettings(); syncSettingsUI(); updateUI(); }));
-      document.querySelectorAll('.preset-btn').forEach((b) => b.addEventListener('click', () => { state.trailerLengthCm = Math.round(parseFloat(b.dataset.preset) * 100); state.trailerWidthCm = 248; state.trailerLabel = b.dataset.label; saveSettings(); syncSettingsUI(); updateUI(); }));
-      document.querySelectorAll('.margin-btn').forEach((b) => b.addEventListener('click', () => { state.dividerMarginCm = Number(b.dataset.margin); saveSettings(); syncSettingsUI(); updateUI(); }));
-      document.querySelectorAll('.stow-btn').forEach((b) => b.addEventListener('click', () => { state.stowMode = b.dataset.stow; saveSettings(); syncSettingsUI(); updateUI(); }));
+      document.querySelectorAll('.quick-single-btn').forEach((b) => b.addEventListener('click', () => { const t = curT(); t.kjolKarSingle = Math.min(Number(b.dataset.singleVal), t.kjolKar); updateUI(); }));
+      document.querySelectorAll('.frys-pos-btn').forEach((b) => b.addEventListener('click', () => { curT().frysPos = b.dataset.frysPos; saveSettings(); updateUI(); }));
+      document.querySelectorAll('.frys-min-btn').forEach((b) => b.addEventListener('click', () => { curT().frysMinPll = Number(b.dataset.frysMin); saveSettings(); updateUI(); }));
+      document.querySelectorAll('.preset-btn').forEach((b) => b.addEventListener('click', () => { const t = curT(); t.trailerLengthCm = Math.round(parseFloat(b.dataset.preset) * 100); t.trailerWidthCm = 248; t.trailerLabel = b.dataset.label; saveSettings(); updateUI(); }));
+      document.querySelectorAll('.margin-btn').forEach((b) => b.addEventListener('click', () => { curT().dividerMarginCm = Number(b.dataset.margin); saveSettings(); updateUI(); }));
+      document.querySelectorAll('.stow-btn').forEach((b) => b.addEventListener('click', () => { app.stowMode = b.dataset.stow; saveSettings(); updateUI(); }));
 
-      document.getElementById('inputDividerMargin').addEventListener('input', (e) => { state.dividerMarginCm = Math.max(0, Math.min(30, parseInt(e.target.value, 10) || 0)); saveSettings(); syncSettingsUI(); updateUI(); });
-      document.getElementById('inputTrailerLength').addEventListener('input', (e) => { const m = parseFloat(String(e.target.value).replace(',', '.')); if (!Number.isNaN(m) && m >= 2 && m <= 25) { state.trailerLengthCm = Math.round(m * 100); state.trailerLabel = 'Eigendefinert tralle'; saveSettings(); syncSettingsUI(); updateUI(); } });
-      document.getElementById('inputTrailerWidth').addEventListener('input', (e) => { const m = parseFloat(String(e.target.value).replace(',', '.')); if (!Number.isNaN(m) && m >= 1.2 && m <= 3) { state.trailerWidthCm = Math.round(m * 100); state.trailerLabel = 'Eigendefinert tralle'; saveSettings(); syncSettingsUI(); updateUI(); } });
+      document.getElementById('inputDividerMargin').addEventListener('input', (e) => { curT().dividerMarginCm = Math.max(0, Math.min(30, parseInt(e.target.value, 10) || 0)); saveSettings(); updateUI(); });
+      document.getElementById('inputTrailerLength').addEventListener('input', (e) => { const m = parseFloat(String(e.target.value).replace(',', '.')); if (!Number.isNaN(m) && m >= 2 && m <= 25) { const t = curT(); t.trailerLengthCm = Math.round(m * 100); t.trailerLabel = 'Eigendefinert tralle'; saveSettings(); updateUI(); } });
+      document.getElementById('inputTrailerWidth').addEventListener('input', (e) => { const m = parseFloat(String(e.target.value).replace(',', '.')); if (!Number.isNaN(m) && m >= 1.2 && m <= 3) { const t = curT(); t.trailerWidthCm = Math.round(m * 100); t.trailerLabel = 'Eigendefinert tralle'; saveSettings(); updateUI(); } });
     });
   </script>
 </body>
